@@ -4,9 +4,11 @@ import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Student
+import com.github.jvalentino.clothescloset.entity.Visit
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
 import com.github.jvalentino.clothescloset.repo.GuardianRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
+import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.util.DateUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -38,6 +40,9 @@ class AppointmentController {
     @Autowired
     AppointmentRepository appointmentRepository
 
+    @Autowired
+    VisitRepository visitRepository
+
     @PostMapping("/appointment/schedule")
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
         // handle the guardian
@@ -60,9 +65,16 @@ class AppointmentController {
             app.semester = 'Fall'
         }
 
-        appointmentRepository.save(app)
+        app = appointmentRepository.save(app)
 
         // create a visit for each student
+        for (Student student : appointment.students) {
+            Visit visit = new Visit()
+            visit.appointment = app
+            visit.student = student
+            visit.happened = false
+            visitRepository.save(visit)
+        }
 
         return new ResultDto()
     }
