@@ -2,6 +2,8 @@ plugins {
 	id 'groovy'
 	id 'org.springframework.boot' version '2.7.7'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	// JACACO!
+	id 'jacoco'
 }
 
 group = 'com.github.jvalentino'
@@ -19,12 +21,42 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.codehaus.groovy:groovy'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	runtimeOnly 'io.micrometer:micrometer-registry-new-relic'
 	runtimeOnly 'org.postgresql:postgresql'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.spockframework:spock-core:2.2-groovy-3.0'
+	testImplementation 'junit:junit:4.13.2'
+	testImplementation 'cglib:cglib-nodep:3.3.0'
+	testImplementation 'org.objenesis:objenesis:3.3'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// JACACO!
+test {
+	finalizedBy jacocoTestReport // report is always generated after tests run
+}
+jacocoTestReport {
+	dependsOn test // tests are required to run before generating the report
+}
+
+jacocoTestCoverageVerification {
+	dependsOn jacocoTestReport
+	violationRules {
+		rule {
+			limit {
+				//counter = 'LINE'
+				//minimum = 0.85
+			}
+		}
+	}
+}
+
+check {
+	dependsOn jacocoTestCoverageVerification
 }
