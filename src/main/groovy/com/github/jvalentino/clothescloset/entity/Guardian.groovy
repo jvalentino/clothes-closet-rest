@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank
 class Guardian {
 
     @Id
+    @NotBlank(message = "email cannot be blank")
     String email
 
     @Column(name = "first_name")
@@ -18,12 +19,15 @@ class Guardian {
     String firstName
 
     @Column(name = "last_name")
+    @NotBlank(message = "lastName cannot be blank")
     String lastName
 
     @Column(name = "phone_number")
+    @NotBlank(message = "phoneNumber cannot be blank")
     String phoneNumber
 
     @Column(name = "phone_type_label")
+    @NotBlank(message = "phoneTypeLabel cannot be blank")
     String phoneTypeLabel
 
 }
