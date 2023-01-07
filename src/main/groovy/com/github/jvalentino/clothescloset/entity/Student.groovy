@@ -7,22 +7,26 @@ import javax.persistence.Id
 import javax.persistence.Table
 import javax.validation.constraints.NotBlank
 
+/**
+ * Represents a student
+ * @author john.valentino
+ */
 @CompileDynamic
 @Entity
-@Table(name = "student")
+@Table(name = 'student')
 class Student {
 
     @Id
-    @NotBlank(message = "id cannot be blank")
+    @NotBlank(message = 'id cannot be blank')
     String id
 
-    @NotBlank(message = "school cannot be blank")
+    @NotBlank(message = 'school cannot be blank')
     String school
 
-    @NotBlank(message = "gender cannot be blank")
+    @NotBlank(message = 'gender cannot be blank')
     String gender
 
-    @NotBlank(message = "grade cannot be blank")
+    @NotBlank(message = 'grade cannot be blank')
     String grade
 
 }

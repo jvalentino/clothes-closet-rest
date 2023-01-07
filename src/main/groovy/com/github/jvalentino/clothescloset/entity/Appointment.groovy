@@ -9,19 +9,22 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 import javax.persistence.Table
-import javax.validation.constraints.NotBlank
 import java.sql.Timestamp
 
+/**
+ * Represents a schedule appointment
+ * @author john.valentino
+ */
 @CompileDynamic
 @Entity
-@Table(name = "appointment")
+@Table(name = 'appointment')
 class Appointment {
 
     @Id @GeneratedValue
     Long id
 
     @OneToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "guardian_email", referencedColumnName = "email")
+    @JoinColumn(name = 'guardian_email', referencedColumnName = 'email')
     Guardian guardian
 
     Timestamp datetime
@@ -29,4 +32,5 @@ class Appointment {
     Integer year
 
     String semester
+
 }

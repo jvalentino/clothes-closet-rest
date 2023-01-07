@@ -10,6 +10,7 @@ import com.github.jvalentino.clothescloset.repo.GuardianRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.util.DateUtil
+import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
@@ -24,6 +25,11 @@ import javax.validation.ConstraintViolationException
 import javax.validation.Valid
 import java.sql.Timestamp
 
+/**
+ * REST endpoint for dealing wth appointments
+ * @author john.valentino
+ */
+@CompileDynamic
 @RestController
 @Validated
 class AppointmentController {
@@ -40,7 +46,7 @@ class AppointmentController {
     @Autowired
     VisitRepository visitRepository
 
-    @PostMapping("/appointment/schedule")
+    @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
         // handle the guardian
         guardianRepository.save(appointment.guardian)
@@ -73,7 +79,7 @@ class AppointmentController {
             visitRepository.save(visit)
         }
 
-        return new ResultDto()
+        new ResultDto()
     }
 
     @ExceptionHandler(ConstraintViolationException)
@@ -81,8 +87,8 @@ class AppointmentController {
     ResultDto handleConstraintViolationException(ConstraintViolationException e) {
         ResultDto result = new ResultDto(success:false)
 
-        for (ConstraintViolation v : e.getConstraintViolations()) {
-            result.messages.add(v.getMessage())
+        for (ConstraintViolation v : e.constraintViolations) {
+            result.messages.add(v.message)
         }
 
         result

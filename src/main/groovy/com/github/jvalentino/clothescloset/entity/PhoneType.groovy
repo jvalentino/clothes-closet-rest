@@ -7,13 +7,17 @@ import javax.persistence.Id
 import javax.persistence.Table
 import javax.validation.constraints.NotBlank
 
+/**
+ * Represents the phone type, like mobile
+ * @author john.valentino
+ */
 @CompileDynamic
 @Entity
-@Table(name = "phone_type")
+@Table(name = 'phone_type')
 class PhoneType {
 
     @Id
-    @NotBlank(message = "label cannot be blank")
+    @NotBlank(message = 'label cannot be blank')
     String label
 
 }

@@ -4,6 +4,8 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	// JACACO!
 	id 'jacoco'
+	// CODENARC!
+	id 'codenarc'
 }
 
 group = 'com.github.jvalentino'
@@ -60,3 +62,6 @@ jacocoTestCoverageVerification {
 check {
 	dependsOn jacocoTestCoverageVerification
 }
+
+// CODENARC!
+codenarcTest.enabled = false

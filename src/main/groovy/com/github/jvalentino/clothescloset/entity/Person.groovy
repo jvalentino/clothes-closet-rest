@@ -6,11 +6,14 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Table
-import javax.validation.constraints.NotBlank
 
+/**
+ * Represents a person that came along for the visit but that is not a student
+ * @author john.valentino
+ */
 @CompileDynamic
 @Entity
-@Table(name = "person")
+@Table(name = 'person')
 class Person {
 
     @Id @GeneratedValue
