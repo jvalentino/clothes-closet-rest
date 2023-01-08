@@ -1,12 +1,14 @@
 # Clothes Closet REST 
 
-# Database Setup
+# Developer Setup
+
+## Database
 
 This is a liquibase project for managing a PostgreSQL database as it runs on Heroku, but uses Docker Compose locally for a development environment.
 
 SpringBoot within the REST app is otherwise use to execute it as needed on startup, which is great.
 
-## Prerequisites
+### Prerequisites
 
 You need Docker, pgadmin, Docker Compose, and LiquidBase:
 
@@ -20,7 +22,7 @@ brew install pssql
 
 When in doubt, run https://github.com/jvalentino/setup-automation
 
-## Setup
+### Setup Script
 
 You need to set some environmment variables for the local database username and password:
 
@@ -75,7 +77,9 @@ Liquibase command 'status' was executed successfully.
 ~/workspaces/personal/clothes-closet-db $
 ```
 
-# Google Calendar API Setup
+## Google Calendar
+
+
 
 
 
