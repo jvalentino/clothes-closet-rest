@@ -40,7 +40,7 @@ class CalendarService {
                         .build()
 
         DateTime now = new DateTime(System.currentTimeMillis())
-        Events events = service.events().list(System.getProperty('GOOGLE_CAL_ID'))
+        Events events = service.events().list(System.getenv('GOOGLE_CAL_ID'))
                 .setMaxResults(10)
                 .setTimeMin(now)
                 .setOrderBy('startTime')

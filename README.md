@@ -83,7 +83,9 @@ Liquibase command 'status' was executed successfully.
 
 
 
-# Heroku Setup
+# Had to do it Once
+
+## Heroku Setup
 
 FIrst, this has to be attached to a specific app, so you first have to go about creating the application., which I called `clothes-closet-rest` and is associated with https://github.com/jvalentino/clothes-closet-rest.
 
@@ -115,7 +117,7 @@ clothes-closet-rest::DATABASE=>
 
 Doing this generated a DATABASE_URL env var on the app, which will rotate automatically with the credentials. Unforuntatley this URL is actually wrong for JDBC, so I had to write code to extract the creds and generate the URL correctly.
 
-# Calendar Setup
+## Calendar Setup
 
 This only had to be done once, but it is worth noting how I did it.
 
