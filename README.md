@@ -43,7 +43,7 @@ docker compose up -d
 
 You then have to create the initial database using pgadmin
 
-![01](/Users/john.valentino/workspaces/personal/clothes-closet-db/wiki/01.png)
+![01](./wiki/01.png)
 
 You can then verify the connectivity via:
 
@@ -104,6 +104,8 @@ Type "help" for help.
 clothes-closet-rest::DATABASE=> 
 
 ```
+
+Doing this generated a DATABASE_URL env var on the app, which will rotate automatically with the credentials. Unforuntatley this URL is actually wrong for JDBC, so I had to write code to extract the creds and generate the URL correctly.
 
 
 
