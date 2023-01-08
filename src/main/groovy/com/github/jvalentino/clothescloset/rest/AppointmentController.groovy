@@ -10,6 +10,7 @@ import com.github.jvalentino.clothescloset.repo.AppointmentRepository
 import com.github.jvalentino.clothescloset.repo.GenderRepository
 import com.github.jvalentino.clothescloset.repo.GradeRepository
 import com.github.jvalentino.clothescloset.repo.GuardianRepository
+import com.github.jvalentino.clothescloset.repo.PhoneTypeRepository
 import com.github.jvalentino.clothescloset.repo.SchoolRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
@@ -60,6 +61,9 @@ class AppointmentController {
     @Autowired
     GenderRepository genderRepository
 
+    @Autowired
+    PhoneTypeRepository phoneTypeRepository
+
     @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
         // handle the guardian
@@ -103,6 +107,7 @@ class AppointmentController {
             genders = genderRepository.retrieveAll()
             schools = schoolRepository.retrieveAll()
             grades = gradeRepository.retrieveAll()
+            phoneTypes = phoneTypeRepository.retrieveAll()
         }
         result
     }
