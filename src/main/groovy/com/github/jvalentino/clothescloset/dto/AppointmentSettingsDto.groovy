@@ -4,6 +4,7 @@ import com.github.jvalentino.clothescloset.entity.Gender
 import com.github.jvalentino.clothescloset.entity.Grade
 import com.github.jvalentino.clothescloset.entity.PhoneType
 import com.github.jvalentino.clothescloset.entity.School
+import com.google.api.services.calendar.model.Event
 import groovy.transform.CompileDynamic
 
 /**
@@ -17,5 +18,6 @@ class AppointmentSettingsDto {
     List<School> schools = []
     List<Grade> grades = []
     List<PhoneType> phoneTypes = []
+    List<Event> events = []
 
 }

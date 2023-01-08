@@ -1,12 +1,12 @@
 # Clothes Closet REST 
 
-## Database Setup
+# Database Setup
 
 This is a liquibase project for managing a PostgreSQL database as it runs on Heroku, but uses Docker Compose locally for a development environment.
 
 SpringBoot within the REST app is otherwise use to execute it as needed on startup, which is great.
 
-### Prerequisites
+## Prerequisites
 
 You need Docker, pgadmin, Docker Compose, and LiquidBase:
 
@@ -20,7 +20,7 @@ brew install pssql
 
 When in doubt, run https://github.com/jvalentino/setup-automation
 
-### Setup
+## Setup
 
 You need to set some environmment variables for the local database username and password:
 
@@ -75,7 +75,11 @@ Liquibase command 'status' was executed successfully.
 ~/workspaces/personal/clothes-closet-db $
 ```
 
-### Heroku Setup
+# Google Calendar API Setup
+
+
+
+# Heroku Setup
 
 FIrst, this has to be attached to a specific app, so you first have to go about creating the application., which I called `clothes-closet-rest` and is associated with https://github.com/jvalentino/clothes-closet-rest.
 
@@ -106,6 +110,20 @@ clothes-closet-rest::DATABASE=>
 ```
 
 Doing this generated a DATABASE_URL env var on the app, which will rotate automatically with the credentials. Unforuntatley this URL is actually wrong for JDBC, so I had to write code to extract the creds and generate the URL correctly.
+
+# Calendar Setup
+
+This only had to be done once, but it is worth noting how I did it.
+
+This one one of those things where most of the internet was garbage in terms of figuring this out.
+
+1. You have to have a Google Application
+2. That application needs a service account, where you have the JSON export of those credentials
+3. You have to grant that application the abilty to use the calendar API
+4. You have to add the service account by its email to that calendar, in this case `clothes-closet-rest@clothes-closet-374119.iam.gserviceaccount.com` to the calendar you want to use under sharing
+5. You have to then access that calendar by its ID, for eample for dev I use `2dbcdac838ad46afef97271b63c8dc213a523a33f85f1b83ea3cc162d14e6963@group.calendar.google.com`
+
+
 
 
 

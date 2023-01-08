@@ -14,6 +14,7 @@ import com.github.jvalentino.clothescloset.repo.PhoneTypeRepository
 import com.github.jvalentino.clothescloset.repo.SchoolRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
+import com.github.jvalentino.clothescloset.service.CalendarService
 import com.github.jvalentino.clothescloset.util.DateUtil
 import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
@@ -64,6 +65,9 @@ class AppointmentController {
     @Autowired
     PhoneTypeRepository phoneTypeRepository
 
+    @Autowired
+    CalendarService calendarService
+
     @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
         // handle the guardian
@@ -108,7 +112,9 @@ class AppointmentController {
             schools = schoolRepository.retrieveAll()
             grades = gradeRepository.retrieveAll()
             phoneTypes = phoneTypeRepository.retrieveAll()
+            events = calendarService.events
         }
+
         result
     }
 
