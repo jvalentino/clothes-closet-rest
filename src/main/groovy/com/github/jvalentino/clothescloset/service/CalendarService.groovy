@@ -24,9 +24,8 @@ import org.springframework.stereotype.Service
 class CalendarService {
 
     static final JsonFactory JSON_FACTORY = GsonFactory.defaultInstance
-    static final InputStream GOOGLE_CREDS = loadGoogleCredentials()
 
-    static InputStream loadGoogleCredentials() {
+    InputStream loadGoogleCredentials() {
         String base64 = System.getenv('GOOGLE_CRED_JSON')
         new ByteArrayInputStream(base64.decodeBase64())
     }
@@ -52,7 +51,8 @@ class CalendarService {
     }
 
     Credential getCredentials() {
-        GoogleCredential.fromStream(GOOGLE_CREDS).createScoped(Collections.singleton(CalendarScopes.CALENDAR))
+        GoogleCredential.fromStream(loadGoogleCredentials()).
+                createScoped(Collections.singleton(CalendarScopes.CALENDAR))
     }
 
 }
