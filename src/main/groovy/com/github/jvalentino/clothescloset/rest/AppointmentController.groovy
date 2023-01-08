@@ -7,8 +7,10 @@ import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
+import com.github.jvalentino.clothescloset.repo.GenderRepository
+import com.github.jvalentino.clothescloset.repo.GradeRepository
 import com.github.jvalentino.clothescloset.repo.GuardianRepository
-import com.github.jvalentino.clothescloset.repo.SettingsRepository
+import com.github.jvalentino.clothescloset.repo.SchoolRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.util.DateUtil
@@ -50,7 +52,13 @@ class AppointmentController {
     VisitRepository visitRepository
 
     @Autowired
-    SettingsRepository settingsRepository
+    GradeRepository gradeRepository
+
+    @Autowired
+    SchoolRepository schoolRepository
+
+    @Autowired
+    GenderRepository genderRepository
 
     @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
@@ -91,7 +99,11 @@ class AppointmentController {
     @GetMapping('/appointment/settings')
     AppointmentSettingsDto getSettings() {
         AppointmentSettingsDto result = new AppointmentSettingsDto()
-        result.settings = settingsRepository.retrieveAll()
+        result.with {
+            genders = genderRepository.retrieveAll()
+            schools = schoolRepository.retrieveAll()
+            grades = gradeRepository.retrieveAll()
+        }
         result
     }
 

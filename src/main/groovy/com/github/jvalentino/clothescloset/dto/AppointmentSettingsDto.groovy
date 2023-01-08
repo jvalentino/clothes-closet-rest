@@ -1,6 +1,8 @@
 package com.github.jvalentino.clothescloset.dto
 
-import com.github.jvalentino.clothescloset.entity.Settings
+import com.github.jvalentino.clothescloset.entity.Gender
+import com.github.jvalentino.clothescloset.entity.Grade
+import com.github.jvalentino.clothescloset.entity.School
 import groovy.transform.CompileDynamic
 
 /**
@@ -10,6 +12,8 @@ import groovy.transform.CompileDynamic
 @CompileDynamic
 class AppointmentSettingsDto {
 
-    List<Settings> settings = []
+    List<Gender> genders = []
+    List<School> schools = []
+    List<Grade> grades = []
 
 }
