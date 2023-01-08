@@ -79,6 +79,13 @@ Liquibase command 'status' was executed successfully.
 
 ## Google Calendar
 
+The Google API requires a json file for the service account, so the best way I could figure to get this to work was to base64 encode the thing and store it as the environment variable of `GOOGLE_CRED_JSON`. That way I don't have to store it in the source code, and I can't have a multi-line env var on Heroku.
+
+Otherwise the environment variable of `GOOGLE_CAL_ID` points to the name of the claendar to use:
+
+- DEV: `2dbcdac838ad46afef97271b63c8dc213a523a33f85f1b83ea3cc162d14e6963@group.calendar.google.com`
+- PROD: TBD
+
 
 
 
@@ -129,7 +136,29 @@ This one one of those things where most of the internet was garbage in terms of 
 4. You have to add the service account by its email to that calendar, in this case `clothes-closet-rest@clothes-closet-374119.iam.gserviceaccount.com` to the calendar you want to use under sharing
 5. You have to then access that calendar by its ID, for eample for dev I use `2dbcdac838ad46afef97271b63c8dc213a523a33f85f1b83ea3cc162d14e6963@group.calendar.google.com`
 
+![01](./wiki/03.png)
 
+
+
+![01](./wiki/04.png)
+
+![01](./wiki/05.png)
+
+![01](./wiki/11.png)
+
+https://console.cloud.google.com/apis/library/calendar-json.googleapis.com?project=clothes-closet-374119
+
+![01](./wiki/06.png)
+
+
+
+![01](./wiki/07.png)
+
+![01](./wiki/10.png)
+
+
+
+![01](./wiki/09.png)
 
 
 
