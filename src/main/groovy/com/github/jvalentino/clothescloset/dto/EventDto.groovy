@@ -12,5 +12,6 @@ class EventDto {
     String title
     String start
     String end
+    String color
 
 }

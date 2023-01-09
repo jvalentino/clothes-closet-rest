@@ -29,6 +29,8 @@ class CalendarService {
     static final JsonFactory JSON_FACTORY = GsonFactory.defaultInstance
     static final String UNAVAILABLE = 'Unavailable'
     static final String OPEN = 'open'
+    static final String COLOR_UNAVAILABLE = '#CCCCCC'
+    static final String COLOR_APPOINTMENT = '#ADADAD'
 
     InputStream loadGoogleCredentials() {
         String base64 = System.getenv('GOOGLE_CRED_JSON')
@@ -63,6 +65,7 @@ class CalendarService {
                 start = DateUtil.fromDate(startDate, timeZone)
                 end = DateUtil.fromDate(endDate, timeZone)
                 title = UNAVAILABLE
+                color = COLOR_UNAVAILABLE
             }
             return [event]
         }
@@ -81,6 +84,7 @@ class CalendarService {
                 start = DateUtil.fromDate(lastEndDate, timeZone)
                 end = DateUtil.eventDateTimeToIso(event.getStart(), timeZone)
                 title = UNAVAILABLE
+                color = COLOR_UNAVAILABLE
             }
             results.add(booked)
 
@@ -93,6 +97,7 @@ class CalendarService {
             start = DateUtil.fromDate(lastEndDate, timeZone)
             end = DateUtil.fromDate(endDate, timeZone)
             title = UNAVAILABLE
+            color = COLOR_UNAVAILABLE
         }
         results.add(booked)
 
@@ -107,6 +112,7 @@ class CalendarService {
                 start = DateUtil.eventDateTimeToIso(event.getStart(), timeZone)
                 end = DateUtil.eventDateTimeToIso(event.getEnd(), timeZone)
                 title = 'Appointment'
+                color = COLOR_APPOINTMENT
             }
             results.add(appointment)
         }
