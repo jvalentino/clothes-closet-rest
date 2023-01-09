@@ -132,9 +132,13 @@ This one one of those things where most of the internet was garbage in terms of 
 
 1. You have to have a Google Application
 2. That application needs a service account, where you have the JSON export of those credentials
-3. You have to grant that application the abilty to use the calendar API
+3. Under APIs and services, you need to add `Google Calendar API` 
 4. You have to add the service account by its email to that calendar, in this case `clothes-closet-rest@clothes-closet-374119.iam.gserviceaccount.com` to the calendar you want to use under sharing
 5. You have to then access that calendar by its ID, for eample for dev I use `2dbcdac838ad46afef97271b63c8dc213a523a33f85f1b83ea3cc162d14e6963@group.calendar.google.com`
+
+If you get the message `Service accounts cannot invite attendees without Domain-Wide Delegation of Authority.`, you need to 
+
+
 
 ![01](./wiki/03.png)
 

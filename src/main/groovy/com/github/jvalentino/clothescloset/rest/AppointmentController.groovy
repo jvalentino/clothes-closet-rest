@@ -104,6 +104,9 @@ class AppointmentController {
             visitRepository.save(visit)
         }
 
+        // book this time on the calendar
+        calendarService.bookSlot(appointment)
+
         new ResultDto()
     }
 

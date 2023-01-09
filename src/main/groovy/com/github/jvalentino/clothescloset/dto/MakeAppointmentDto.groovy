@@ -13,6 +13,8 @@ class MakeAppointmentDto {
 
     String datetime
 
+    String timeZone = 'America/Chicago'
+
     Guardian guardian
 
     List<Student> students

@@ -1,8 +1,12 @@
 package com.github.jvalentino.clothescloset.service
 
 import com.github.jvalentino.clothescloset.dto.EventDto
+import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
+import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.util.DateUtil
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import com.google.api.services.calendar.model.EventAttendee
+import com.google.api.services.calendar.model.EventDateTime
 import groovy.transform.CompileDynamic
 
 import com.google.api.client.auth.oauth2.Credential
@@ -23,7 +27,12 @@ import org.springframework.stereotype.Service
  */
 @CompileDynamic
 @Service
-@SuppressWarnings(['NoJavaUtilDate', 'UnnecessaryGetter'])
+@SuppressWarnings([
+        'NoJavaUtilDate',
+        'UnnecessaryGetter',
+        'UnnecessaryGString',
+        'UnnecessarySetter',
+        'UnnecessaryPackageReference'])
 class CalendarService {
 
     static final JsonFactory JSON_FACTORY = GsonFactory.defaultInstance
@@ -31,21 +40,29 @@ class CalendarService {
     static final String OPEN = 'open'
     static final String COLOR_UNAVAILABLE = '#CCCCCC'
     static final String COLOR_APPOINTMENT = '#ADADAD'
+    static final String GOOGLE_CAL_ID = System.getenv('GOOGLE_CAL_ID')
+    static final String GOOGLE_CRED_JSON = System.getenv('GOOGLE_CRED_JSON')
 
     InputStream loadGoogleCredentials() {
-        String base64 = System.getenv('GOOGLE_CRED_JSON')
+        String base64 = GOOGLE_CRED_JSON
         new ByteArrayInputStream(base64.decodeBase64())
     }
 
-    List<Event> getEvents(Date startDate, Date endDate) {
+    Calendar generateService() {
         NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport()
         Credential credential = this.credentials
 
         Calendar service = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
-                        .setApplicationName('APPLICATION_NAME')
-                        .build()
+                .setApplicationName('APPLICATION_NAME')
+                .build()
 
-        Events events = service.events().list(System.getenv('GOOGLE_CAL_ID'))
+        service
+    }
+
+    List<Event> getEvents(Date startDate, Date endDate) {
+        Calendar service = this.generateService()
+
+        Events events = service.events().list(GOOGLE_CAL_ID)
                 .setMaxResults(2500)
                 .setTimeMin(new DateTime(startDate.time))
                 .setTimeMax(new DateTime(endDate.time))
@@ -118,6 +135,50 @@ class CalendarService {
         }
 
         results
+    }
+
+    void bookSlot(MakeAppointmentDto appointment) {
+        Calendar service = this.generateService()
+        String eventText = "<b>Guardian</b>: ${appointment.guardian.firstName} ${appointment.guardian.lastName}"
+        eventText += "(${appointment.guardian.phoneNumber}) <br />"
+        eventText += "${appointment.guardian.email} <br />"
+        eventText += "<br />"
+        eventText += "<b>Students:</b><br />"
+        eventText += "<ol>"
+
+        for (Student student : appointment.students) {
+            eventText += "<li>${student.id}, ${student.gender}, ${student.grade}, ${student.school} </li>"
+        }
+        eventText += "</ol>"
+
+        Event event = new Event()
+                .setSummary("${appointment.guardian.lastName} (${appointment.students.size()})")
+                .setDescription(eventText)
+
+        DateTime startDateTime = DateUtil.isoToDateTime(appointment.datetime)
+        EventDateTime start = new EventDateTime()
+                .setDateTime(startDateTime)
+                .setTimeZone(appointment.timeZone)
+        event.setStart(start)
+
+        java.util.Calendar c = java.util.Calendar.instance
+        c.time = DateUtil.toDate(appointment.datetime)
+        c.add(java.util.Calendar.MINUTE, 30)
+        String endDateIso = DateUtil.fromDate(c.time, appointment.timeZone)
+
+        DateTime endDateTime = DateUtil.isoToDateTime(endDateIso)
+        EventDateTime end = new EventDateTime()
+                .setDateTime(endDateTime)
+                .setTimeZone(appointment.timeZone)
+        event.setEnd(end)
+
+        /*EventAttendee[] attendees = new EventAttendee[] {
+                new EventAttendee().setEmail(appointment.guardian.email)
+        };
+        event.setAttendees(Arrays.asList(attendees));*/
+
+        event = service.events().insert(GOOGLE_CAL_ID, event).execute()
+        //System.out.printf("Event created: %s\n", event.getHtmlLink())
     }
 
     Credential getCredentials() {

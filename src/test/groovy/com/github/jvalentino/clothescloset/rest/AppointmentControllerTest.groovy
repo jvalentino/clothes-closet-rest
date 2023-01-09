@@ -10,6 +10,7 @@ import com.github.jvalentino.clothescloset.repo.AppointmentRepository
 import com.github.jvalentino.clothescloset.repo.GuardianRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
+import com.github.jvalentino.clothescloset.service.CalendarService
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -24,6 +25,7 @@ class AppointmentControllerTest extends Specification {
         subject.studentRepository = Mock(StudentRepository)
         subject.appointmentRepository = Mock(AppointmentRepository)
         subject.visitRepository = Mock(VisitRepository)
+        subject.calendarService = Mock(CalendarService)
     }
 
     def "test schedule"() {
@@ -70,6 +72,7 @@ class AppointmentControllerTest extends Specification {
 
             return visit
         }
+        1 * subject.calendarService.bookSlot(appointment)
 
         and:
         result.success == true

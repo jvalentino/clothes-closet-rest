@@ -43,4 +43,8 @@ class DateUtil {
         DateUtil.fromDate(new Date(input.getDateTime().getValue()), timeZone)
     }
 
+    static DateTime isoToDateTime(String iso) {
+        new DateTime(DateUtil.toDate(iso).time)
+    }
+
 }
