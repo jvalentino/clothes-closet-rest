@@ -16,6 +16,7 @@ import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
 import com.github.jvalentino.clothescloset.util.DateUtil
+import com.google.api.services.calendar.model.Event
 import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
@@ -39,6 +41,7 @@ import java.sql.Timestamp
 @CompileDynamic
 @RestController
 @Validated
+@SuppressWarnings(['OptionalMethodParameter'])
 class AppointmentController {
 
     @Autowired
@@ -105,15 +108,39 @@ class AppointmentController {
     }
 
     @GetMapping('/appointment/settings')
-    AppointmentSettingsDto getSettings() {
-        AppointmentSettingsDto result = new AppointmentSettingsDto()
+    AppointmentSettingsDto getSettings(@RequestParam Optional<String> start,
+                                       @RequestParam Optional<String> end,
+                                       @RequestParam(required = false, defaultValue = 'America/Chicago')
+                                       String timeZone) {
+        String endDateString = end.empty ? null : end.get()
+        String startDateString = start.empty ? null : start.get()
+
+        if (startDateString == null) {
+            startDateString = DateUtil.fromDate(new Date(), timeZone)
+        }
+
+        Date startDate = DateUtil.toDate(startDateString, timeZone)
+
+        if (endDateString == null) {
+            Calendar c = Calendar.instance
+            c.time = startDate
+            c.add(Calendar.MONTH, 3)
+            endDateString = DateUtil.fromDate(c.time, timeZone)
+        }
+
+        Date endDate = DateUtil.toDate(endDateString, timeZone)
+
+        AppointmentSettingsDto result = new AppointmentSettingsDto(timeZone:timeZone)
         result.with {
             genders = genderRepository.retrieveAll()
             schools = schoolRepository.retrieveAll()
             grades = gradeRepository.retrieveAll()
             phoneTypes = phoneTypeRepository.retrieveAll()
-            events = calendarService.events
+            startDateIso = startDateString
+            endDateIso = endDateString
         }
+        List<Event> events = calendarService.getEvents(startDate, endDate)
+        result.events = calendarService.fillCalendar(events, timeZone, startDate, endDate)
 
         result
     }
