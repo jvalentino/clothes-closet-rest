@@ -152,7 +152,7 @@ If you get the message `Service accounts cannot invite attendees without Domain-
 
 https://console.cloud.google.com/apis/library/calendar-json.googleapis.com?project=clothes-closet-374119
 
-![01](./wiki/06.png)
+
 
 
 
@@ -164,5 +164,14 @@ https://console.cloud.google.com/apis/library/calendar-json.googleapis.com?proje
 
 ![01](./wiki/09.png)
 
+## Google Ouath
+
+Guide: https://livefiredev.com/in-depth-guide-sign-in-with-google-in-a-react-js-application/
 
 
+
+![01](./wiki/06.png)
+
+![01](./wiki/12.png)
+
+![01](./wiki/13.png)
