@@ -7,6 +7,10 @@ import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
 
+/**
+ * Entity for the session
+ * @author john.valentino
+ */
 @CompileDynamic
 @Entity
 @Table(name = 'spring_session')

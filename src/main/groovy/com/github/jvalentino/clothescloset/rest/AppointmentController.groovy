@@ -19,9 +19,7 @@ import com.github.jvalentino.clothescloset.util.DateUtil
 import com.google.api.services.calendar.model.Event
 import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpStatus
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
