@@ -195,4 +195,40 @@ class AppointmentControllerTest extends Specification {
         result.appointments.size() == 1
         result.appointments.get(0).datetimeIso == '2023-05-01T00:00:00.000+0000'
     }
+
+    def "test getAppointmentDetails when no result"() {
+        given:
+        Long id = 1L
+        String timeZone = 'GMT'
+
+        when:
+        Appointment result = subject.getAppointmentDetails(id, timeZone)
+
+        then:
+        1 * subject.appointmentRepository.getAppointmentDetails(id) >> []
+
+        and:
+        result.id == null
+    }
+
+    def "test getAppointmentDetails when match"() {
+        given:
+        Long id = 1L
+        String timeZone = 'GMT'
+
+        and:
+        List<Appointment> appointments = [
+                new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
+        ]
+
+        when:
+        Appointment result = subject.getAppointmentDetails(id, timeZone)
+
+        then:
+        1 * subject.appointmentRepository.getAppointmentDetails(id) >> appointments
+
+        and:
+        result.datetimeIso == '2023-05-01T00:00:00.000+0000'
+    }
+
 }

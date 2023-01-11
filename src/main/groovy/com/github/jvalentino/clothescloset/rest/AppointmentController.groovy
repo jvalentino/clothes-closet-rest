@@ -182,11 +182,30 @@ class AppointmentController {
             result.appointments = appointmentRepository.all()
         }
 
-        for (Appointment app : result.appointments) {
-            app.datetimeIso = DateUtil.fromDate(new Date(app.datetime.time), timeZone)
-        }
+        addIsoToAppointments(result.appointments, timeZone)
 
         result
+    }
+
+    @GetMapping('/appointment/details')
+    Appointment getAppointmentDetails(@RequestParam Long id,
+                                      @RequestParam(required = false, defaultValue = 'America/Chicago')
+                                      String timeZone) {
+        List<Appointment> results = appointmentRepository.getAppointmentDetails(id)
+
+        if (results.empty) {
+            return new Appointment()
+        }
+
+        addIsoToAppointments(results, timeZone)
+
+        results.first()
+    }
+
+    void addIsoToAppointments(List<Appointment> appointments, String timeZone) {
+        for (Appointment app : appointments) {
+            app.datetimeIso = DateUtil.fromDate(new Date(app.datetime.time), timeZone)
+        }
     }
 
     @ExceptionHandler(ConstraintViolationException)

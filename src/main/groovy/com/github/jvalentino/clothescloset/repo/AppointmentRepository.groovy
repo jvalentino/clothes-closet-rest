@@ -42,4 +42,14 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
         ''')
     List<Appointment> listOnDateWithNameMatch(Date startDate, Date endDate, String name)
 
+    @Query('''
+            select distinct appointment from Appointment appointment
+            left join fetch appointment.guardian as guardian
+            left join fetch appointment.visits as visits
+            left join fetch visits.student as student
+            left join fetch visits.person as person
+            where appointment.id = ?1
+        ''')
+    List<Appointment> getAppointmentDetails(long id)
+
 }

@@ -1,5 +1,6 @@
 package com.github.jvalentino.clothescloset.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileDynamic
 
 import javax.persistence.CascadeType
@@ -7,6 +8,7 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
 import javax.persistence.Table
 
@@ -23,8 +25,9 @@ class Visit {
     @Id @GeneratedValue
     Long id
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = 'appointment_id', referencedColumnName = 'id')
+    @JsonIgnore
     Appointment appointment
 
     @OneToOne(cascade = CascadeType.MERGE)
