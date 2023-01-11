@@ -38,6 +38,8 @@ class Appointment {
     @Transient
     String datetimeIso
 
+    Boolean happened
+
     @OneToMany(mappedBy='appointment')
     Set<Visit> visits
 

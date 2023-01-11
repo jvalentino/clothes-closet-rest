@@ -4,6 +4,7 @@ import com.github.jvalentino.clothescloset.dto.AddPersonDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
+import com.github.jvalentino.clothescloset.dto.UpdateAppointmentDto
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Guardian
 import com.github.jvalentino.clothescloset.entity.Person
@@ -263,6 +264,94 @@ class AppointmentControllerTest extends Specification {
         then:
         1 * subject.appointmentRepository.deleteById(id)
         result.success
+    }
+
+    def "test updateAppointment"() {
+        given:
+        UpdateAppointmentDto dto = new UpdateAppointmentDto()
+        dto.appointmentId = 1L
+        dto.visits = []
+
+        and:
+        Guardian guardian = new Guardian(email:'alpha@bravo.com')
+
+        Appointment appointment = new Appointment(id:1L)
+        appointment.guardian = guardian
+        appointment.happened = false
+        appointment.datetime = DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000')
+        appointment.year = 2023
+        appointment.semester = 'Spring'
+
+        and:
+        Visit visit1 = new Visit(id:2L, happened:false)
+        visit1.student = new Student(id:'3')
+        visit1.with {
+            socks = 10
+            underwear = 11
+            shoes = 12
+            coats = 13
+            backpacks = 14
+            misc = 15
+        }
+        dto.visits.add(visit1)
+
+        Optional<Student> optionalStudent = GroovyMock()
+        Student originalStudent = new Student(id:'3')
+
+        and:
+        Visit visit2 = new Visit(id:4L, happened:false)
+        visit2.person = new Person(id:5L)
+        visit2.with {
+            socks = 20
+            underwear = 21
+            shoes = 22
+            coats = 23
+            backpacks = 24
+            misc = 25
+        }
+        dto.visits.add(visit2)
+
+        Optional<Person> optionalPerson = GroovyMock()
+        Person originalPerson = new Person(id:5L)
+
+        when:
+        ResultDto result = subject.updateAppointment(dto)
+
+        then:
+        1 * subject.appointmentRepository.getWithGuardian(1L) >> [appointment]
+        1 * subject.appointmentRepository.save(_) >> { Appointment app ->
+            assert app.happened == true
+        }
+
+        and:
+        1 * subject.studentRepository.findById('3') >> optionalStudent
+        1 * optionalStudent.get() >> originalStudent
+        1 * subject.visitRepository.save(_) >> { Visit visit ->
+            assert visit.socks == 10
+            assert visit.underwear == 11
+            assert visit.shoes == 12
+            assert visit.coats == 13
+            assert visit.backpacks == 14
+            assert visit.misc == 15
+            assert visit.happened == true
+        }
+
+        and:
+        1 * subject.personRepository.findById(5L) >> optionalPerson
+        1 * optionalPerson.get() >> originalPerson
+        1 * subject.visitRepository.save(_) >> { Visit visit ->
+            assert visit.socks == 20
+            assert visit.underwear == 21
+            assert visit.shoes == 22
+            assert visit.coats == 23
+            assert visit.backpacks == 24
+            assert visit.misc == 25
+            assert visit.happened == true
+        }
+
+        and:
+        result.success
+
     }
 
 }

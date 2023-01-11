@@ -177,6 +177,14 @@ CREATE TABLE auth_user (
 INSERT INTO auth_user(email) VALUES ('jvalentino2@gmail.com');
 INSERT INTO auth_user(email) VALUES ('smvalentino85@gmail.com');
 
+-- changeset liquibase:4
+ALTER TABLE appointment
+  ADD happened boolean;
+
+UPDATE appointment SET happened = false where happened IS NULL;
+
+
+
 
 
 

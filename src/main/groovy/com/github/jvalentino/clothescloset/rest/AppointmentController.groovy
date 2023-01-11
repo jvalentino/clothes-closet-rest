@@ -5,6 +5,7 @@ import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
+import com.github.jvalentino.clothescloset.dto.UpdateAppointmentDto
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Person
 import com.github.jvalentino.clothescloset.entity.Student
@@ -243,6 +244,31 @@ class AppointmentController {
     @DeleteMapping('/appointment/cancel')
     ResultDto cancelAppointment(@RequestParam Long id) {
         appointmentRepository.deleteById(id)
+
+        new ResultDto()
+    }
+
+    @PostMapping('/appointment/update')
+    ResultDto updateAppointment(@Valid @RequestBody UpdateAppointmentDto dto) {
+        Appointment appointment = appointmentRepository.getWithGuardian(dto.appointmentId).first()
+        appointment.happened = true
+
+        appointmentRepository.save(appointment)
+
+        for (Visit visit : dto.visits) {
+            visit.appointment = appointment
+            visit.happened = true
+
+            if (visit.student != null) {
+                visit.student = studentRepository.findById(visit.student.id).get()
+            }
+
+            if (visit.person != null) {
+                visit.person = personRepository.findById(visit.person.id).get()
+            }
+
+            visitRepository.save(visit)
+        }
 
         new ResultDto()
     }
