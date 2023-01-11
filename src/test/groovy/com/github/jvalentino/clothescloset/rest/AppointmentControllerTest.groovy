@@ -253,4 +253,16 @@ class AppointmentControllerTest extends Specification {
         result.success
     }
 
+    def "test cancelAppointment"() {
+        given:
+        Long id = 1L
+
+        when:
+        ResultDto result = subject.cancelAppointment(id)
+
+        then:
+        1 * subject.appointmentRepository.deleteById(id)
+        result.success
+    }
+
 }

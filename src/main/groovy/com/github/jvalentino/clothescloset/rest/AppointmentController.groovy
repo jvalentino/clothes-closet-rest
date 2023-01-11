@@ -25,6 +25,7 @@ import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -237,6 +238,13 @@ class AppointmentController {
         }
 
         result
+    }
+
+    @DeleteMapping('/appointment/cancel')
+    ResultDto cancelAppointment(@RequestParam Long id) {
+        appointmentRepository.deleteById(id)
+
+        new ResultDto()
     }
 
 }
