@@ -26,7 +26,7 @@ class SecurityConfig {
 
     static final List<String> INSECURES = [
             '/oauth',
-            'appointment/settings',
+            '/appointment/settings',
             '/appointment/schedule',
             '/settings',
     ]
@@ -41,7 +41,7 @@ class SecurityConfig {
     WebSecurityCustomizer webSecurityCustomizer() {
         (web) -> web.ignoring().antMatchers(
                 '/oauth',
-                'appointment/settings',
+                '/appointment/settings',
                 '/appointment/schedule',
                 '/settings',
         )

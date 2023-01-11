@@ -64,6 +64,7 @@ class LoginController {
         sc.setAuthentication(auth)
 
         session.setAttribute('SPRING_SECURITY_CONTEXT', sc)
+        session.setMaxInactiveInterval(86400)
 
         new AuthResponseDto(sessionId:session.getId())
     }

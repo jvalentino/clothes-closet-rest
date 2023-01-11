@@ -1,5 +1,6 @@
 package com.github.jvalentino.clothescloset.rest
 
+import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
@@ -144,6 +145,26 @@ class AppointmentController {
         }
         List<Event> events = calendarService.getEvents(startDate, endDate)
         result.events = calendarService.fillCalendar(events, timeZone, startDate, endDate)
+
+        result
+    }
+
+    @GetMapping('/appointment/search')
+    AppointmentSearchDto searchAppointments(@RequestParam Optional<String> date,
+                                            @RequestParam Optional<String> name,
+                                            @RequestParam(required = false, defaultValue = 'America/Chicago')
+                                            String timeZone) {
+        String dateString = date.empty ? null : date.get()
+        String nameString = name.empty ? null : name.get()
+
+        AppointmentSearchDto result = new AppointmentSearchDto()
+        result.name = nameString
+        result.date = dateString
+
+        result.appointments = appointmentRepository.all()
+        for (Appointment app : result.appointments) {
+            app.datetimeIso = DateUtil.fromDate(new Date(app.datetime.time), timeZone)
+        }
 
         result
     }

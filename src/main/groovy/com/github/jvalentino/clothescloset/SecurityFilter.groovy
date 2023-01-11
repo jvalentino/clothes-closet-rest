@@ -67,6 +67,8 @@ class SecurityFilter extends GenericFilterBean {
         SecurityContext sc = SecurityContextHolder.getContext()
         sc.setAuthentication(authReq)
 
+        //session.setMaxInactiveInterval(86400)
+
         chain.doFilter(request, response)
     }
 
