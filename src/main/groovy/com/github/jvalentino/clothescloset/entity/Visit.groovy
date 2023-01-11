@@ -9,7 +9,6 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
-import javax.persistence.OneToOne
 import javax.persistence.Table
 
 /**
@@ -30,11 +29,11 @@ class Visit {
     @JsonIgnore
     Appointment appointment
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = 'student_id', referencedColumnName = 'id')
     Student student
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = 'person_id', referencedColumnName = 'id')
     Person person
 

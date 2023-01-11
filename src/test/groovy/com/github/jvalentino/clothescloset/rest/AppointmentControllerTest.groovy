@@ -1,14 +1,17 @@
 package com.github.jvalentino.clothescloset.rest
 
+import com.github.jvalentino.clothescloset.dto.AddPersonDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Guardian
+import com.github.jvalentino.clothescloset.entity.Person
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
 import com.github.jvalentino.clothescloset.repo.GuardianRepository
+import com.github.jvalentino.clothescloset.repo.PersonRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
@@ -28,6 +31,7 @@ class AppointmentControllerTest extends Specification {
         subject.appointmentRepository = Mock(AppointmentRepository)
         subject.visitRepository = Mock(VisitRepository)
         subject.calendarService = Mock(CalendarService)
+        subject.personRepository = Mock(PersonRepository)
     }
 
     def "test schedule"() {
@@ -229,6 +233,24 @@ class AppointmentControllerTest extends Specification {
 
         and:
         result.datetimeIso == '2023-05-01T00:00:00.000+0000'
+    }
+
+    def "test addPersonToAppointment"() {
+        given:
+        AddPersonDto dto = new AddPersonDto(appointmentId:1L)
+        dto.person = new Person(relation:'alpha')
+
+        when:
+        ResultDto result = subject.addPersonToAppointment(dto)
+
+        then:
+        1 * subject.personRepository.save(dto.person)
+        1 * subject.visitRepository.save(_) >> { Visit visit ->
+            assert visit.appointment.id == 1L
+        }
+
+        and:
+        result.success
     }
 
 }

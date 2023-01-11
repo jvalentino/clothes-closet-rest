@@ -1,10 +1,12 @@
 package com.github.jvalentino.clothescloset.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileDynamic
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.persistence.OneToMany
 import javax.persistence.Table
 
 /**
@@ -20,5 +22,9 @@ class Person {
     Long id
 
     String relation
+
+    @OneToMany(mappedBy='person')
+    @JsonIgnore
+    Set<Visit> visits
 
 }

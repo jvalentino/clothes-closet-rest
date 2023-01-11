@@ -1,16 +1,19 @@
 package com.github.jvalentino.clothescloset.rest
 
+import com.github.jvalentino.clothescloset.dto.AddPersonDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.entity.Appointment
+import com.github.jvalentino.clothescloset.entity.Person
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
 import com.github.jvalentino.clothescloset.repo.GenderRepository
 import com.github.jvalentino.clothescloset.repo.GradeRepository
 import com.github.jvalentino.clothescloset.repo.GuardianRepository
+import com.github.jvalentino.clothescloset.repo.PersonRepository
 import com.github.jvalentino.clothescloset.repo.PhoneTypeRepository
 import com.github.jvalentino.clothescloset.repo.SchoolRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
@@ -71,6 +74,9 @@ class AppointmentController {
 
     @Autowired
     CalendarService calendarService
+
+    @Autowired
+    PersonRepository personRepository
 
     @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
@@ -206,6 +212,19 @@ class AppointmentController {
         for (Appointment app : appointments) {
             app.datetimeIso = DateUtil.fromDate(new Date(app.datetime.time), timeZone)
         }
+    }
+
+    @PostMapping('/appointment/person')
+    ResultDto addPersonToAppointment(@Valid @RequestBody AddPersonDto dto) {
+        Person person = dto.person
+        personRepository.save(person)
+
+        Visit visit = new Visit()
+        visit.appointment = new Appointment(id:dto.appointmentId)
+        visit.person = person
+        visitRepository.save(visit)
+
+        new ResultDto()
     }
 
     @ExceptionHandler(ConstraintViolationException)

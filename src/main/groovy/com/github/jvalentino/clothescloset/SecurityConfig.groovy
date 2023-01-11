@@ -57,6 +57,8 @@ class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable() // POST with security was given 403
+
         http.httpBasic()
                 .and()
                 .authorizeRequests()
