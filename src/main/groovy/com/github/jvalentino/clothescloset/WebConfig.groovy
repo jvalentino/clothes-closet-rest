@@ -15,9 +15,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @EnableWebMvc
 class WebConfig implements WebMvcConfigurer {
 
-    @Override
+    /*@Override
     void addCorsMappings(CorsRegistry registry) {
         registry.addMapping('/**')
-    }
+                .allowCredentials(true)
+                .allowedHeaders('x-auth-token', 'Content-Type')
+                .allowedMethods('*')
+                .allowedOriginPatterns('*')
+                .allowedOrigins('*')
+    }*/
 
 }

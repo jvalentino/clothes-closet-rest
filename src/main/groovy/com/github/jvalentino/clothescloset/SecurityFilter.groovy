@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest
 @Service
 @Configurable
 @CompileDynamic
-@SuppressWarnings(['UnnecessaryGetter', 'UnnecessarySetter'])
+@SuppressWarnings(['UnnecessaryGetter', 'UnnecessarySetter', 'DuplicateStringLiteral'])
 class SecurityFilter extends GenericFilterBean {
 
     @Autowired
@@ -44,6 +44,16 @@ class SecurityFilter extends GenericFilterBean {
         // pull the token out of the header
         HttpServletRequest httpRequest = (HttpServletRequest) request
         String token = httpRequest.getHeader('x-auth-token')
+        if (token == null) {
+            token = httpRequest.getHeader('X-Auth-Token')
+        }
+
+        // react likes to strip off headers no matter what I do,
+        // so we will look for it as a parameter
+        if (token == null) {
+            token = httpRequest.getParameter('x-auth-token')
+        }
+
         String pathInfo = httpRequest.getRequestURI()
 
         // if this is insecure just ignore it
