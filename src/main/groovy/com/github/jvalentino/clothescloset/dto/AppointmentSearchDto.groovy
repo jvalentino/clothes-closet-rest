@@ -12,6 +12,10 @@ class AppointmentSearchDto {
 
     String date
     String name
+    String startDateIso
+    String endDateIso
+    Date startDate
+    Date endDate
     List<Appointment> appointments = []
 
 }

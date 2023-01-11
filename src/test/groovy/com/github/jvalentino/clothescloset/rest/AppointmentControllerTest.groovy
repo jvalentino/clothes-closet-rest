@@ -1,5 +1,6 @@
 package com.github.jvalentino.clothescloset.rest
 
+import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.entity.Appointment
@@ -11,6 +12,7 @@ import com.github.jvalentino.clothescloset.repo.GuardianRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
+import com.github.jvalentino.clothescloset.util.DateUtil
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -76,5 +78,121 @@ class AppointmentControllerTest extends Specification {
 
         and:
         result.success == true
+    }
+
+    def "test searchAppointments when no parameters"() {
+        given:
+        Optional<String> date = GroovyMock()
+        Optional<String> name = GroovyMock()
+        String timeZone = 'GMT'
+
+        and:
+        List<Appointment> appointments = [
+                new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
+        ]
+        when:
+        AppointmentSearchDto result = subject.searchAppointments(date, name, timeZone)
+
+        then:
+        1 * date.empty >> true
+        1 * name.empty >> true
+        1 * subject.appointmentRepository.all() >> appointments
+
+        and:
+        result.name == null
+        result.date == null
+        result.endDateIso == null
+        result.startDateIso == null
+        result.appointments.size() == 1
+        result.appointments.get(0).datetimeIso == '2023-05-01T00:00:00.000+0000'
+
+    }
+
+    def "test searchAppointments when name and date"() {
+        given:
+        Optional<String> date = GroovyMock()
+        Optional<String> name = GroovyMock()
+        String timeZone = 'GMT'
+
+        and:
+        List<Appointment> appointments = [
+                new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
+        ]
+        when:
+        AppointmentSearchDto result = subject.searchAppointments(date, name, timeZone)
+
+        then:
+        1 * date.empty >> false
+        1 * date.get() >> '2023-05-01'
+        1 * name.empty >> false
+        1 * name.get() >> 'alpha'
+        1 * subject.appointmentRepository.listOnDateWithNameMatch(
+                _,
+                _,
+                "%alpha%") >> appointments
+
+        and:
+        result.name == 'alpha'
+        result.date == '2023-05-01'
+        result.endDateIso == '2023-05-02T00:00:00.000+0000'
+        result.startDateIso == '2023-05-01T00:00:00.000+0000'
+        result.appointments.size() == 1
+        result.appointments.get(0).datetimeIso == '2023-05-01T00:00:00.000+0000'
+    }
+
+    def "test searchAppointments when name"() {
+        given:
+        Optional<String> date = GroovyMock()
+        Optional<String> name = GroovyMock()
+        String timeZone = 'GMT'
+
+        and:
+        List<Appointment> appointments = [
+                new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
+        ]
+        when:
+        AppointmentSearchDto result = subject.searchAppointments(date, name, timeZone)
+
+        then:
+        1 * date.empty >> true
+        1 * name.empty >> false
+        1 * name.get() >> 'alpha'
+        1 * subject.appointmentRepository.listByNameMatch("%alpha%") >> appointments
+
+        and:
+        result.name == 'alpha'
+        result.date == null
+        result.endDateIso == null
+        result.startDateIso == null
+        result.appointments.size() == 1
+        result.appointments.get(0).datetimeIso == '2023-05-01T00:00:00.000+0000'
+    }
+
+    def "test searchAppointments when date"() {
+        given:
+        Optional<String> date = GroovyMock()
+        Optional<String> name = GroovyMock()
+        String timeZone = 'GMT'
+
+        and:
+        List<Appointment> appointments = [
+                new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
+        ]
+        when:
+        AppointmentSearchDto result = subject.searchAppointments(date, name, timeZone)
+
+        then:
+        1 * date.empty >> false
+        1 * date.get() >> '2023-05-01'
+        1 * name.empty >> true
+        1 * subject.appointmentRepository.listOnDate(_, _) >> appointments
+
+        and:
+        result.name == null
+        result.date == '2023-05-01'
+        result.endDateIso == '2023-05-02T00:00:00.000+0000'
+        result.startDateIso == '2023-05-01T00:00:00.000+0000'
+        result.appointments.size() == 1
+        result.appointments.get(0).datetimeIso == '2023-05-01T00:00:00.000+0000'
     }
 }

@@ -25,4 +25,16 @@ class DateUtilTest extends Specification {
         then:
         result == '1969-12-31T18:00:00.001-0600'
     }
+
+    def "test fromYearMonthDay"() {
+        given:
+        String input = '2023-02-03'
+
+        when:
+        Date date = DateUtil.fromYearMonthDay(input)
+        String result = DateUtil.fromDate(date)
+
+        then:
+        result == '2023-02-03T00:00:00.000+0000'
+    }
 }

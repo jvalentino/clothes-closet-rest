@@ -161,7 +161,27 @@ class AppointmentController {
         result.name = nameString
         result.date = dateString
 
-        result.appointments = appointmentRepository.all()
+        if (result.date != null) {
+            result.startDate = DateUtil.fromYearMonthDay(result.date, timeZone)
+            result.endDate = DateUtil.addDays(result.startDate, 1)
+            result.startDateIso = DateUtil.fromDate(result.startDate, timeZone)
+            result.endDateIso = DateUtil.fromDate(result.endDate, timeZone)
+        }
+
+        if (result.name != null && result.date != null) {
+            result.appointments = appointmentRepository.listOnDateWithNameMatch(
+                    result.startDate,
+                    result.endDate,
+                    "%${result.name}%"
+            )
+        } else if (result.name != null) {
+            result.appointments = appointmentRepository.listByNameMatch("%${result.name}%")
+        } else if (result.date != null) {
+            result.appointments = appointmentRepository.listOnDate(result.startDate, result.endDate)
+        } else {
+            result.appointments = appointmentRepository.all()
+        }
+
         for (Appointment app : result.appointments) {
             app.datetimeIso = DateUtil.fromDate(new Date(app.datetime.time), timeZone)
         }

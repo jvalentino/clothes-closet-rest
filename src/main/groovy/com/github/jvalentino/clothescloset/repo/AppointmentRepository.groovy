@@ -13,8 +13,33 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian
-            order by appointment.datetime
+            order by appointment.datetime DESC
         ''')
     List<Appointment> all()
+
+    @Query('''
+            select distinct appointment from Appointment appointment
+            left join fetch appointment.guardian as guardian
+            where guardian.firstName like ?1 or guardian.lastName like ?1
+            order by appointment.datetime DESC
+        ''')
+    List<Appointment> listByNameMatch(String name)
+
+    @Query('''
+            select distinct appointment from Appointment appointment
+            left join fetch appointment.guardian as guardian
+            where appointment.datetime >= ?1 and appointment.datetime < ?2
+            order by appointment.datetime DESC
+        ''')
+    List<Appointment> listOnDate(Date startDate, Date endDate)
+
+    @Query('''
+            select distinct appointment from Appointment appointment
+            left join fetch appointment.guardian as guardian
+            where appointment.datetime >= ?1 and appointment.datetime < ?2
+            and guardian.firstName like ?3 or guardian.lastName like ?3
+            order by appointment.datetime DESC
+        ''')
+    List<Appointment> listOnDateWithNameMatch(Date startDate, Date endDate, String name)
 
 }
