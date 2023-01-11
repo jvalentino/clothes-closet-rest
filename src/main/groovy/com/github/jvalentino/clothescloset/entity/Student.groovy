@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileDynamic
 
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.Id
 import javax.persistence.OneToMany
 import javax.persistence.Table
@@ -31,7 +32,7 @@ class Student {
     @NotBlank(message = 'grade cannot be blank')
     String grade
 
-    @OneToMany(mappedBy='student')
+    @OneToMany(mappedBy='student', fetch = FetchType.LAZY)
     @JsonIgnore
     Set<Visit> visits
 

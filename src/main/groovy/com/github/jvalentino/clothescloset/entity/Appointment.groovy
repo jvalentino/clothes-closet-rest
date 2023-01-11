@@ -4,6 +4,7 @@ import groovy.transform.CompileDynamic
 
 import javax.persistence.CascadeType
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
@@ -25,7 +26,7 @@ class Appointment {
     @Id @GeneratedValue
     Long id
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = 'guardian_email', referencedColumnName = 'email')
     Guardian guardian
 
@@ -40,7 +41,7 @@ class Appointment {
 
     Boolean happened
 
-    @OneToMany(mappedBy='appointment')
+    @OneToMany(mappedBy='appointment', fetch = FetchType.LAZY)
     Set<Visit> visits
 
 }

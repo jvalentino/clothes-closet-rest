@@ -33,6 +33,7 @@ dependencies {
 	implementation 'com.google.api-client:google-api-client-jackson2:2.1.2'
 
 	implementation 'org.springframework.session:spring-session-jdbc'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.14.1'
 
 	runtimeOnly 'io.micrometer:micrometer-registry-new-relic'
 	runtimeOnly 'org.postgresql:postgresql'

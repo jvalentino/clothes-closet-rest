@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileDynamic
 
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.OneToMany
@@ -23,7 +24,7 @@ class Person {
 
     String relation
 
-    @OneToMany(mappedBy='person')
+    @OneToMany(mappedBy='person', fetch = FetchType.LAZY)
     @JsonIgnore
     Set<Visit> visits
 

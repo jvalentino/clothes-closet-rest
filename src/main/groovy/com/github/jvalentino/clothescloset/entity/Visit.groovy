@@ -5,6 +5,7 @@ import groovy.transform.CompileDynamic
 
 import javax.persistence.CascadeType
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
@@ -24,16 +25,16 @@ class Visit {
     @Id @GeneratedValue
     Long id
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = 'appointment_id', referencedColumnName = 'id')
     @JsonIgnore
     Appointment appointment
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = 'student_id', referencedColumnName = 'id')
     Student student
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = 'person_id', referencedColumnName = 'id')
     Person person
 
