@@ -2,6 +2,8 @@ package com.github.jvalentino.clothescloset.rest
 
 import com.github.jvalentino.clothescloset.dto.AuthResponseDto
 import com.github.jvalentino.clothescloset.dto.OAuthDto
+import com.github.jvalentino.clothescloset.entity.AuthUser
+import com.github.jvalentino.clothescloset.repo.AuthUserRepository
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import groovy.transform.CompileDynamic
@@ -32,6 +34,9 @@ class LoginController {
     @Autowired
     AuthenticationManager authManager
 
+    @Autowired
+    AuthUserRepository authUserRepository
+
     @PostMapping('/oauth')
     AuthResponseDto login(@Valid @RequestBody OAuthDto oauth, HttpSession session) {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
@@ -42,6 +47,13 @@ class LoginController {
 
         if (!idToken.verify(verifier)) {
             return new AuthResponseDto(success:false, messages:['Invalid OAuth'])
+        }
+
+        // Need to validate that this user is supported
+        List<AuthUser> users = authUserRepository.find(idToken.payload.getEmail())
+
+        if (users.size() == 0) {
+            return new AuthResponseDto(success:false, messages:['Not an authorized user'])
         }
 
         UsernamePasswordAuthenticationToken authReq

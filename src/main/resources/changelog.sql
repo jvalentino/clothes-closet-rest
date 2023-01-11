@@ -167,6 +167,18 @@ CREATE TABLE SPRING_SESSION_ATTRIBUTES (
 	CONSTRAINT SPRING_SESSION_ATTRIBUTES_FK FOREIGN KEY (SESSION_PRIMARY_ID) REFERENCES SPRING_SESSION(PRIMARY_ID) ON DELETE CASCADE
 );
 
+-- changeset liquibase:3
+
+CREATE TABLE auth_user (
+    email VARCHAR(256),
+    PRIMARY KEY (email)
+);
+
+INSERT INTO auth_user(email) VALUES ('jvalentino2@gmail.com');
+INSERT INTO auth_user(email) VALUES ('smvalentino85@gmail.com');
+
+
+
 
 
 
