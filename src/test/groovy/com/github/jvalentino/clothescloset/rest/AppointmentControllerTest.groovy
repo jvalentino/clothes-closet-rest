@@ -261,11 +261,16 @@ class AppointmentControllerTest extends Specification {
     def "test cancelAppointment"() {
         given:
         Long id = 1L
+        Optional<Appointment> optional = GroovyMock()
+        Appointment appointment = new Appointment(eventId:'alpha')
 
         when:
         ResultDto result = subject.cancelAppointment(id)
 
         then:
+        1 * subject.appointmentRepository.findById(id) >> optional
+        1 * optional.get() >> appointment
+        1 * subject.calendarService.deleteEvent('alpha')
         1 * subject.appointmentRepository.deleteById(id)
         result.success
     }

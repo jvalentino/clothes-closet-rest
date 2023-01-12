@@ -183,6 +183,10 @@ ALTER TABLE appointment
 
 UPDATE appointment SET happened = false where happened IS NULL;
 
+-- changeset liquibase:5
+ALTER TABLE appointment
+  ADD event_id  VARCHAR(256);
+
 
 
 

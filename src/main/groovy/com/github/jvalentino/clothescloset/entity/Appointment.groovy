@@ -3,6 +3,7 @@ package com.github.jvalentino.clothescloset.entity
 import groovy.transform.CompileDynamic
 
 import javax.persistence.CascadeType
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
@@ -40,6 +41,9 @@ class Appointment {
     String datetimeIso
 
     Boolean happened
+
+    @Column(name = 'event_id')
+    String eventId
 
     @OneToMany(mappedBy='appointment', fetch = FetchType.LAZY)
     Set<Visit> visits

@@ -137,7 +137,7 @@ class CalendarService {
         results
     }
 
-    void bookSlot(MakeAppointmentDto appointment) {
+    String bookSlot(MakeAppointmentDto appointment) {
         Calendar service = this.generateService()
         String eventText = "<b>Guardian</b>: ${appointment.guardian.firstName} ${appointment.guardian.lastName}"
         eventText += "(${appointment.guardian.phoneNumber}) <br />"
@@ -178,7 +178,15 @@ class CalendarService {
         event.setAttendees(Arrays.asList(attendees));*/
 
         event = service.events().insert(GOOGLE_CAL_ID, event).execute()
-        //System.out.printf("Event created: %s\n", event.getHtmlLink())
+        event.getId()
+    }
+
+    void deleteEvent(String eventId) {
+        if (eventId == null) {
+            return
+        }
+        Calendar service = this.generateService()
+        service.events().delete(GOOGLE_CAL_ID, eventId).execute()
     }
 
     Credential getCredentials() {

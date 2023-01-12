@@ -82,6 +82,9 @@ class AppointmentController {
 
     @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
+        // book this time on the calendar
+        String eventId = calendarService.bookSlot(appointment)
+
         // handle the guardian
         guardianRepository.save(appointment.guardian)
 
@@ -96,6 +99,7 @@ class AppointmentController {
         app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
         app.year = DateUtil.getYear(app.datetime)
         app.happened = false
+        app.eventId = eventId
 
         if (app.datetime.month >= 0 && app.datetime.month <= 5) {
             app.semester = 'Spring'
@@ -113,9 +117,6 @@ class AppointmentController {
             visit.happened = false
             visitRepository.save(visit)
         }
-
-        // book this time on the calendar
-        calendarService.bookSlot(appointment)
 
         new ResultDto()
     }
@@ -242,6 +243,8 @@ class AppointmentController {
 
     @DeleteMapping('/appointment/cancel')
     ResultDto cancelAppointment(@RequestParam Long id) {
+        Appointment appointment = appointmentRepository.findById(id).get()
+        calendarService.deleteEvent(appointment.eventId)
         appointmentRepository.deleteById(id)
 
         new ResultDto()
