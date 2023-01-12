@@ -300,8 +300,8 @@ class AppointmentControllerTest extends Specification {
         Student originalStudent = new Student(id:'3')
 
         and:
-        Visit visit2 = new Visit(id:4L, happened:false)
-        visit2.person = new Person(id:5L)
+        Visit visit2 = new Visit(id:4L, happened:false,)
+        visit2.person = new Person(id:5L,  relation:'mother')
         visit2.with {
             socks = 20
             underwear = 21
@@ -348,6 +348,7 @@ class AppointmentControllerTest extends Specification {
             assert visit.backpacks == 24
             assert visit.misc == 25
             assert visit.happened == true
+            assert visit.person.relation == 'mother'
         }
 
         and:

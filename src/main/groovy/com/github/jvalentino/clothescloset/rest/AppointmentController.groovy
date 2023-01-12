@@ -265,7 +265,9 @@ class AppointmentController {
             }
 
             if (visit.person != null) {
+                String relation = visit.person.relation
                 visit.person = personRepository.findById(visit.person.id).get()
+                visit.person.relation = relation
             }
 
             visitRepository.save(visit)
