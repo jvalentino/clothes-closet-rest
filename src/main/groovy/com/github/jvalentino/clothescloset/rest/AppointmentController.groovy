@@ -95,6 +95,7 @@ class AppointmentController {
         app.guardian = appointment.guardian
         app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
         app.year = DateUtil.getYear(app.datetime)
+        app.happened = false
 
         if (app.datetime.month >= 0 && app.datetime.month <= 5) {
             app.semester = 'Spring'

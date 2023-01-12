@@ -69,6 +69,7 @@ class AppointmentControllerTest extends Specification {
             assert app.guardian.email == appointment.guardian.email
             assert app.year == 2023
             assert app.semester == "Spring"
+            assert app.happened == false
 
             return app
         }
