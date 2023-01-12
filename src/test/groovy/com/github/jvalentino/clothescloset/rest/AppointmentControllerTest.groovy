@@ -3,16 +3,19 @@ package com.github.jvalentino.clothescloset.rest
 import com.github.jvalentino.clothescloset.dto.AddPersonDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
+import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.dto.UpdateAppointmentDto
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Guardian
 import com.github.jvalentino.clothescloset.entity.Person
+import com.github.jvalentino.clothescloset.entity.Settings
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
 import com.github.jvalentino.clothescloset.repo.GuardianRepository
 import com.github.jvalentino.clothescloset.repo.PersonRepository
+import com.github.jvalentino.clothescloset.repo.SettingsRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
@@ -33,6 +36,7 @@ class AppointmentControllerTest extends Specification {
         subject.visitRepository = Mock(VisitRepository)
         subject.calendarService = Mock(CalendarService)
         subject.personRepository = Mock(PersonRepository)
+        subject.settingsRepository = Mock(SettingsRepository)
     }
 
     def "test schedule"() {
@@ -361,7 +365,82 @@ class AppointmentControllerTest extends Specification {
 
         and:
         result.success
-
     }
 
+    def "test getPrintDetails when first time"() {
+        given:
+        Long id = 1L
+        String timeZone = 'GMT'
+
+        and:
+        Appointment appointment = new Appointment(id:1L)
+        appointment.datetime = DateUtil.isoToTimestamp('2023-01-02T00:00:00.000+0000')
+        appointment.guardian = new Guardian(email:'charlie')
+
+        and:
+        List<Settings> settings = [
+                new Settings(gender:'Male', label:'alpha'),
+                new Settings(gender:'Female', label:'bravo'),
+        ]
+
+        when:
+        PrintAppointmentDto result = subject.getPrintDetails(id, timeZone)
+
+        then:
+        1 * subject.appointmentRepository.getAppointmentDetails(id) >> [appointment]
+        1 * subject.settingsRepository.retrieveAll() >> settings
+        1 * subject.appointmentRepository.findForGuardian(appointment.guardian.email, appointment.id) >> []
+
+        and:
+        result.firstTime == true
+        result.lastAppointmentDateIso == null
+        result.appointment.id == appointment.id
+        result.appointment.datetimeIso == '2023-01-02T00:00:00.000+0000'
+        result.boySettings.size() == 1
+        result.girlSettings.size() == 1
+        result.boySettings.get(0).label == 'alpha'
+        result.girlSettings.get(0).label == 'bravo'
+        result.previous.size() == 0
+    }
+
+    def "test getPrintDetails when NOT first time"() {
+        given:
+        Long id = 1L
+        String timeZone = 'GMT'
+
+        and:
+        Appointment appointment = new Appointment(id:1L)
+        appointment.datetime = DateUtil.isoToTimestamp('2023-01-02T00:00:00.000+0000')
+        appointment.guardian = new Guardian(email:'charlie')
+
+        and:
+        List<Settings> settings = [
+                new Settings(gender:'Male', label:'alpha'),
+                new Settings(gender:'Female', label:'bravo'),
+        ]
+
+        and:
+        Appointment previous = new Appointment()
+        previous.datetime = DateUtil.isoToTimestamp('2023-01-01T00:00:00.000+0000')
+
+        when:
+        PrintAppointmentDto result = subject.getPrintDetails(id, timeZone)
+
+        then:
+        1 * subject.appointmentRepository.getAppointmentDetails(id) >> [appointment]
+        1 * subject.settingsRepository.retrieveAll() >> settings
+        1 * subject.appointmentRepository.findForGuardian(appointment.guardian.email, appointment.id) >> [previous]
+
+        and:
+        result.firstTime == false
+        result.lastAppointmentDateIso == '2023-01-01T00:00:00.000+0000'
+        result.appointment.id == appointment.id
+        result.appointment.datetimeIso == '2023-01-02T00:00:00.000+0000'
+        result.boySettings.size() == 1
+        result.girlSettings.size() == 1
+        result.boySettings.get(0).label == 'alpha'
+        result.girlSettings.get(0).label == 'bravo'
+        result.previous.size() == 1
+        result.previous.get(0).datetimeIso == '2023-01-01T00:00:00.000+0000'
+    }
 }

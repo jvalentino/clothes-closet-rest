@@ -59,4 +59,12 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
         ''')
     List<Appointment> getWithGuardian(long id)
 
+    @Query('''
+            select distinct appointment from Appointment appointment
+            left join fetch appointment.guardian as guardian
+            where guardian.email = ?1 and appointment.id != ?2
+            order by appointment.datetime DESC
+        ''')
+    List<Appointment> findForGuardian(String email, Long id)
+
 }

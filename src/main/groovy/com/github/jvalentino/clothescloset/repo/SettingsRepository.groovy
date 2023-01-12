@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query
  */
 interface SettingsRepository extends JpaRepository<Settings, Long> {
 
-    @Query('select distinct settings from Settings settings order by settings.id')
+    @Query('select distinct settings from Settings settings order by settings.gender, settings.label')
     List<Settings> retrieveAll()
 
 }

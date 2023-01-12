@@ -4,10 +4,12 @@ import com.github.jvalentino.clothescloset.dto.AddPersonDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
+import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.dto.UpdateAppointmentDto
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Person
+import com.github.jvalentino.clothescloset.entity.Settings
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
@@ -17,6 +19,7 @@ import com.github.jvalentino.clothescloset.repo.GuardianRepository
 import com.github.jvalentino.clothescloset.repo.PersonRepository
 import com.github.jvalentino.clothescloset.repo.PhoneTypeRepository
 import com.github.jvalentino.clothescloset.repo.SchoolRepository
+import com.github.jvalentino.clothescloset.repo.SettingsRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
@@ -79,6 +82,9 @@ class AppointmentController {
 
     @Autowired
     PersonRepository personRepository
+
+    @Autowired
+    SettingsRepository settingsRepository
 
     @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
@@ -275,6 +281,39 @@ class AppointmentController {
         }
 
         new ResultDto()
+    }
+
+    @GetMapping('/appointment/print')
+    PrintAppointmentDto getPrintDetails(@RequestParam Long id,
+                                        @RequestParam(required = false, defaultValue = 'America/Chicago')
+                                        String timeZone) {
+
+        Appointment appointment = appointmentRepository.getAppointmentDetails(id).first()
+        addIsoToAppointments([appointment], timeZone)
+
+        PrintAppointmentDto result = new PrintAppointmentDto(appointment:appointment)
+
+        List<Settings> settings = settingsRepository.retrieveAll()
+
+        for (Settings setting : settings) {
+            if (setting.gender == 'Male') {
+                result.boySettings.add(setting)
+            } else {
+                result.girlSettings.add(setting)
+            }
+        }
+
+        result.previous = appointmentRepository.findForGuardian(appointment.guardian.email, appointment.id)
+
+        if (result.previous.size() == 0) {
+            result.firstTime = true
+        } else {
+            result.firstTime = false
+            addIsoToAppointments(result.previous, timeZone)
+            result.lastAppointmentDateIso = result.previous.first().datetimeIso
+        }
+
+        result
     }
 
 }
