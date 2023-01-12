@@ -218,7 +218,7 @@ class AppointmentController {
     }
 
     @PostMapping('/appointment/person')
-    ResultDto addPersonToAppointment(@Valid @RequestBody AddPersonDto dto) {
+    Visit addPersonToAppointment(@Valid @RequestBody AddPersonDto dto) {
         Person person = dto.person
         personRepository.save(person)
 
@@ -226,8 +226,6 @@ class AppointmentController {
         visit.appointment = new Appointment(id:dto.appointmentId)
         visit.person = person
         visitRepository.save(visit)
-
-        new ResultDto()
     }
 
     @ExceptionHandler(ConstraintViolationException)

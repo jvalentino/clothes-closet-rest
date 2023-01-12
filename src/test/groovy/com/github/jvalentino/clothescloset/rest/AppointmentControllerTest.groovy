@@ -243,16 +243,19 @@ class AppointmentControllerTest extends Specification {
         dto.person = new Person(relation:'alpha')
 
         when:
-        ResultDto result = subject.addPersonToAppointment(dto)
+        Visit result = subject.addPersonToAppointment(dto)
 
         then:
         1 * subject.personRepository.save(dto.person)
         1 * subject.visitRepository.save(_) >> { Visit visit ->
+            visit.id = 123L
             assert visit.appointment.id == 1L
+            visit
         }
 
         and:
-        result.success
+        result.id == 123L
+        result.person.relation == 'alpha'
     }
 
     def "test cancelAppointment"() {
