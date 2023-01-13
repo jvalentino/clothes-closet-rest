@@ -88,7 +88,33 @@ Otherwise the environment variable of `GOOGLE_CAL_ID` points to the name of the 
 
 
 
+# Security
 
+The plan is simple enough:
+
+1. Client uses the Google Login button, that when pressed directs you to sign in with your Google Account
+2. On Google Sign In, the result is that the client is given a JWT token (signed by Google)
+3. Client passes the JWT token to the login service, which validates it, checks that the email address is a known admin, and if so creates a session as identified by a session ID, which is then returned to the client (https://developers.google.com/identity/openid-connect/openid-connect#java)
+4. The client provides the session id with each request to prove validation as the header x-auth-token
+5. Unless explicitly listed, every endpoint requires a valid session ID
+6. The session is managed by Spring Security via JDBC storage, which means it handles expiration automatically
+
+Great, and I am sure there is some way to get this working out-of-the-box with Spring Security and OAuth2. Unforunately, for the life of me I could not get it to work using Spring. Therefore, after roughly 8 hours of slamming my head against the wall, I resorted to adding my own custom authentication that handles this. Specifically:
+
+- `CustomAuthenticationProvider` just returns the given `Authentication`, because actual authentication is handled in the `LoginController`
+- `MyCORSFilter` grants incoming requests from anywhere using the standard headers. However, while this works with both cURL and Postman, guess who doesn't care? ReactJS. As soon as I attempt to set any header other that Content-Type in ReactJS, it gives me a CORS error. As a result, I made the `SecurityFilter` accept `x-auth-token` as an HTTP parameter as well.
+- The `SecurityConfig` is what wires the `CustomAuthenticationProvider` in, as well as list the insecure endpoints in a 2 of the 3 ways. This is because I could not get the `SecurityFilter` to honor the settings here, so I just provide it with a list of the endpoints to ignore.
+- The `SecurityFilter` is run on every request, and if the endpoint needs to be secure, looks for the x-auth-token in the header or as a parameter and looks its session up. If it is not found, it errors out. If it is found, it ensures the current request is authorized. Note though that in order to get this to work I had to create a new authorized request and pass it into the security context. While this works, it also ends up creating a new session, which is wrong and should be fixed at some point. This means every logged in user has two sessions instead of just one, but they both expire like they are supposed to.
+
+The `LoginControlller` is where the magic happens, in that it is given the JWT, validates it, pulled out the email address, looks for that email in `AuthUser`, and if valid establishes a new Session ID.
+
+# JSON Serialization
+
+Since we are using Spring magic to map to and from Objects and JSON, we have to consider that if not told otherwise Jackson will lazy load every single Object in an Entity relationship. This is why I had to create `CustomObjectMapper`, which tells this app to:
+
+1. Not fail when a result is empty
+2. Not fail if properties are given that do not map to an object
+3. Use the Hibernate5 module so that we can tell it to not lazy load everything, but then to also not use `@Transient`. This is because we want `@Transient` to not involve the database but be used as a part of JSON. This is so that we can do things like have an ISO date on an entity that is passed to the client, but that is not stored in the database. The intention was to avoid having a redundant set of DTOs and just use Entities directly.
 
 # Had to do it Once
 

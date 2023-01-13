@@ -1,4 +1,4 @@
-package com.github.jvalentino.clothescloset
+package com.github.jvalentino.clothescloset.config
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature

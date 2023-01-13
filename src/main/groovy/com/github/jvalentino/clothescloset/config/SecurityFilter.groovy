@@ -1,4 +1,4 @@
-package com.github.jvalentino.clothescloset
+package com.github.jvalentino.clothescloset.config
 
 import com.github.jvalentino.clothescloset.entity.SpringSession
 import com.github.jvalentino.clothescloset.repo.SpringSessionRepository

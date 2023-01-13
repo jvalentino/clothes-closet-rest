@@ -1,5 +1,6 @@
 package com.github.jvalentino.clothescloset
 
+import com.github.jvalentino.clothescloset.config.DataSourceConfig
 import spock.lang.Specification
 import spock.lang.Subject
 

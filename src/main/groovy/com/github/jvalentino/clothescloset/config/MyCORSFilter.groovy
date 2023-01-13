@@ -1,4 +1,4 @@
-package com.github.jvalentino.clothescloset
+package com.github.jvalentino.clothescloset.config
 
 import groovy.transform.CompileDynamic
 import org.springframework.core.Ordered
