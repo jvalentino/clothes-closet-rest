@@ -28,7 +28,6 @@ class SecurityConfig {
             '/oauth',
             '/appointment/settings',
             '/appointment/schedule',
-            '/settings',
     ]
 
     @Autowired
@@ -43,7 +42,6 @@ class SecurityConfig {
                 '/oauth',
                 '/appointment/settings',
                 '/appointment/schedule',
-                '/settings',
         )
     }
 
