@@ -1,7 +1,9 @@
 package com.github.jvalentino.clothescloset.service
 
+import com.github.jvalentino.clothescloset.dto.AvailabilityDto
 import com.github.jvalentino.clothescloset.dto.EventDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
+import com.github.jvalentino.clothescloset.dto.TimeRangeDto
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.util.DateUtil
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
@@ -135,6 +137,86 @@ class CalendarService {
         }
 
         results
+    }
+
+    AvailabilityDto findAvailableTimeSlots(List<EventDto> events, String timeZone, int timeSlotMinutes=30) {
+        AvailabilityDto result = new AvailabilityDto()
+
+        // looking only at Unavailable events, which are in order from earlier to latest
+        List<EventDto> unavailableEvents = []
+        for (EventDto event : events) {
+            if (event.title == UNAVAILABLE) {
+                unavailableEvents.add(event)
+            }
+        }
+
+        // figure out the time range between event i and i + 1
+        for (int i = 0; i < unavailableEvents.size(); i++) {
+            EventDto event = unavailableEvents.get(i)
+            String currentEventEndDateIso = event.end
+
+            // if there is no i + 1, we assume it is the end of the calendar and not available
+            if (i == unavailableEvents.size() - 1) {
+                break
+            }
+
+            String nextEventStartDateIso = unavailableEvents.get(i + 1).start
+
+            result.ranges.add(new TimeRangeDto(startIso:currentEventEndDateIso, endIso:nextEventStartDateIso))
+        }
+
+        // now we have to adjust the ranges to align with the time intervals
+        for (TimeRangeDto range : result.ranges) {
+            result.adjustedRanges.add(new TimeRangeDto(
+                    startIso:this.roundIso(range.startIso, timeZone, timeSlotMinutes, true),
+                    endIso:this.roundIso(range.endIso, timeZone, timeSlotMinutes, false)))
+        }
+
+        // calculate in time slot minutes increments
+        for (TimeRangeDto range : result.adjustedRanges) {
+            Date startTime = DateUtil.toDate(range.startIso)
+            Date endTime = DateUtil.toDate(range.endIso)
+
+            Date currentTime = new Date(startTime.time)
+            while (currentTime.time < endTime.time) {
+                result.startDateTimes.add(DateUtil.fromDate(currentTime, timeZone))
+                currentTime = DateUtil.addMinutes(currentTime, timeSlotMinutes)
+            }
+        }
+
+        // for every other event that is not unavailable, remove it from the list
+        Set<String> bookedTimes = []
+        for (EventDto event : events) {
+            if (event.title != UNAVAILABLE) {
+                bookedTimes.add(event.start)
+            }
+        }
+
+        for (String available : result.startDateTimes) {
+            if (!bookedTimes.contains(available)) {
+                result.availabilities.add(available)
+            }
+        }
+
+        result
+    }
+
+    // TODO: Note that this only works in 30 minute intervals
+    String roundIso(String iso, String timeZone, int intervalMinutes=30, boolean forward=false) {
+        Date date = DateUtil.toDate(iso, timeZone)
+
+        if (date.minutes > 0 && date.minutes < intervalMinutes) {
+            date.minutes = intervalMinutes
+        } else if (date.minutes > intervalMinutes) {
+            if (forward) {
+                date.minutes = 0
+                date.hours = date.hours + 1
+            } else {
+                date.minutes = intervalMinutes
+            }
+        }
+
+        DateUtil.fromDate(date, timeZone)
     }
 
     String bookSlot(MakeAppointmentDto appointment) {

@@ -21,5 +21,6 @@ class AppointmentSettingsDto {
     List<Grade> grades = []
     List<PhoneType> phoneTypes = []
     List<EventDto> events = []
+    AvailabilityDto availability
 
 }

@@ -63,6 +63,14 @@ class DateUtil {
         c.time
     }
 
+    static Date addMinutes(Date date, int minutes) {
+        Calendar c = Calendar.instance
+        c.time = date
+        c.add(Calendar.MINUTE, minutes)
+
+        c.time
+    }
+
     static Timestamp isoToTimestamp(String iso, String timeZone=GMT) {
         new Timestamp(DateUtil.toDate(iso, timeZone).time)
     }

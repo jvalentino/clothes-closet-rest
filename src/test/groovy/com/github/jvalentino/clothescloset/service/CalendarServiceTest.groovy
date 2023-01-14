@@ -1,5 +1,6 @@
 package com.github.jvalentino.clothescloset.service
 
+import com.github.jvalentino.clothescloset.dto.AvailabilityDto
 import com.github.jvalentino.clothescloset.dto.EventDto
 import com.github.jvalentino.clothescloset.util.DateUtil
 import com.google.api.client.util.DateTime
@@ -7,6 +8,7 @@ import com.google.api.services.calendar.model.Event
 import com.google.api.services.calendar.model.EventDateTime
 import spock.lang.Specification
 import spock.lang.Subject
+import spock.lang.Unroll
 
 class CalendarServiceTest extends Specification {
 
@@ -112,5 +114,108 @@ class CalendarServiceTest extends Specification {
         results.get(4).title == 'Appointment'
         results.get(4).start == '2023-01-10T12:00:00.000-0600'
         results.get(4).end == '2023-01-10T12:30:00.000-0600'
+    }
+
+    def "Test findAvailableTimeSlots"() {
+        given:
+        List<EventDto> events = [
+                new EventDto(
+                        title:'Unavailable',
+                        start:'2023-01-14T10:00:35.867-0600',
+                        end:'2023-01-14T08:15:00.000-0600'),
+                new EventDto(
+                        title:'Unavailable',
+                        start:'2023-01-14T16:00:00.000-0600',
+                        end:'2023-01-15T08:45:00.000-0600'),
+                new EventDto(
+                        title:'Unavailable',
+                        start:'2023-01-15T10:45:00.000-0600',
+                        end:'2023-01-15T12:00:00.000-0600'),
+                new EventDto(
+                        title:'Appointment',
+                        start:'2023-01-14T13:30:00.000-0600',
+                        end:'2023-01-14T14:00:00.000-0600'),
+        ]
+        String timeZone = 'America/Chicago'
+        int timeSlotMinutes = 30
+
+        when:
+        AvailabilityDto result = subject.findAvailableTimeSlots(events, timeZone, timeSlotMinutes)
+
+        then:
+        result.ranges.get(0).startIso == '2023-01-14T08:15:00.000-0600'
+        result.ranges.get(0).endIso == '2023-01-14T16:00:00.000-0600'
+
+        result.ranges.get(1).startIso == '2023-01-15T08:45:00.000-0600'
+        result.ranges.get(1).endIso == '2023-01-15T10:45:00.000-0600'
+
+        and:
+        result.adjustedRanges.get(0).startIso == '2023-01-14T08:30:00.000-0600'
+        result.adjustedRanges.get(0).endIso == '2023-01-14T16:00:00.000-0600'
+
+        result.adjustedRanges.get(1).startIso == '2023-01-15T09:00:00.000-0600'
+        result.adjustedRanges.get(1).endIso == '2023-01-15T10:30:00.000-0600'
+
+        and: "for the first adjusted time range"
+        int index = 0
+        result.startDateTimes.get(index++) == '2023-01-14T08:30:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T09:00:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T09:30:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T10:00:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T10:30:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T11:00:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T11:30:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T12:00:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T12:30:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T13:00:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T13:30:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T14:00:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T14:30:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T15:00:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-14T15:30:00.000-0600'
+
+        and: "for the second adjusted time slot"
+        result.startDateTimes.get(index++) == '2023-01-15T09:00:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-15T09:30:00.000-0600'
+        result.startDateTimes.get(index++) == '2023-01-15T10:00:00.000-0600'
+
+        and: "for the actual availabilities for the first time range"
+        int index2 = 0
+        result.availabilities.get(index2++) == '2023-01-14T08:30:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T09:00:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T09:30:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T10:00:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T10:30:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T11:00:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T11:30:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T12:00:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T12:30:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T13:00:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T14:00:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T14:30:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T15:00:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-14T15:30:00.000-0600'
+
+        and: "for the actual availabilities for the second time range"
+        result.availabilities.get(index2++) == '2023-01-15T09:00:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-15T09:30:00.000-0600'
+        result.availabilities.get(index2++) == '2023-01-15T10:00:00.000-0600'
+    }
+
+    @Unroll
+    def "test roundIso at forward #forward with #iso to #output"() {
+        when:
+        String result = subject.roundIso(iso, 'GMT', 30, forward)
+
+        then:
+        result == output
+
+        where:
+        iso                             | forward   || output
+        '2023-01-14T08:15:00.000+0000'  | false     || '2023-01-14T08:30:00.000+0000'
+        '2023-01-14T08:45:00.000+0000'  | false     || '2023-01-14T08:30:00.000+0000'
+        '2023-01-14T16:00:00.000+0000'  | false     || '2023-01-14T16:00:00.000+0000'
+        '2023-01-15T08:45:00.000+0000'  | true      || '2023-01-15T09:00:00.000+0000'
+        '2023-01-15T23:45:00.000+0000'  | true      || '2023-01-16T00:00:00.000+0000'
     }
 }

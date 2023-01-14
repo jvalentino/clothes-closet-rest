@@ -161,6 +161,7 @@ class AppointmentController {
         }
         List<Event> events = calendarService.getEvents(startDate, endDate)
         result.events = calendarService.fillCalendar(events, timeZone, startDate, endDate)
+        result.availability = calendarService.findAvailableTimeSlots(result.events, timeZone, 30)
 
         result
     }
