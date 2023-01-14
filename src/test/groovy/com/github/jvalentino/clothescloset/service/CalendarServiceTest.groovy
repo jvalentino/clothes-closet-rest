@@ -138,9 +138,10 @@ class CalendarServiceTest extends Specification {
         ]
         String timeZone = 'America/Chicago'
         int timeSlotMinutes = 30
+        Date currentDateTime = DateUtil.toDate('2023-01-14T09:31:00.000-0600', timeZone)
 
         when:
-        AvailabilityDto result = subject.findAvailableTimeSlots(events, timeZone, timeSlotMinutes)
+        AvailabilityDto result = subject.findAvailableTimeSlots(events, timeZone, timeSlotMinutes, currentDateTime)
 
         then:
         result.ranges.get(0).startIso == '2023-01-14T08:15:00.000-0600'
@@ -181,9 +182,9 @@ class CalendarServiceTest extends Specification {
 
         and: "for the actual availabilities for the first time range"
         int index2 = 0
-        result.availabilities.get(index2++) == '2023-01-14T08:30:00.000-0600'
-        result.availabilities.get(index2++) == '2023-01-14T09:00:00.000-0600'
-        result.availabilities.get(index2++) == '2023-01-14T09:30:00.000-0600'
+        // result.availabilities.get(index2++) == '2023-01-14T08:30:00.000-0600'
+        // result.availabilities.get(index2++) == '2023-01-14T09:00:00.000-0600'
+        // result.availabilities.get(index2++) == '2023-01-14T09:30:00.000-0600'
         result.availabilities.get(index2++) == '2023-01-14T10:00:00.000-0600'
         result.availabilities.get(index2++) == '2023-01-14T10:30:00.000-0600'
         result.availabilities.get(index2++) == '2023-01-14T11:00:00.000-0600'

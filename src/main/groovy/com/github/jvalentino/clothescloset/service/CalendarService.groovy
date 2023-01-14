@@ -139,7 +139,8 @@ class CalendarService {
         results
     }
 
-    AvailabilityDto findAvailableTimeSlots(List<EventDto> events, String timeZone, int timeSlotMinutes=30) {
+    AvailabilityDto findAvailableTimeSlots(List<EventDto> events, String timeZone, int timeSlotMinutes=30,
+        Date currentDateTime=new Date()) {
         AvailabilityDto result = new AvailabilityDto()
 
         // looking only at Unavailable events, which are in order from earlier to latest
@@ -193,7 +194,9 @@ class CalendarService {
         }
 
         for (String available : result.startDateTimes) {
-            if (!bookedTimes.contains(available)) {
+            Date eventTime = DateUtil.toDate(available)
+
+            if (!bookedTimes.contains(available) && eventTime.time > currentDateTime.time) {
                 result.availabilities.add(available)
             }
         }
