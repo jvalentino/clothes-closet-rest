@@ -28,6 +28,7 @@ class SecurityConfig {
             '/oauth',
             '/appointment/settings',
             '/appointment/schedule',
+            '/error',
     ]
 
     @Autowired

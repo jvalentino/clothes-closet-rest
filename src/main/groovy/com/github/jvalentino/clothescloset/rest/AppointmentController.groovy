@@ -27,19 +27,14 @@ import com.github.jvalentino.clothescloset.util.DateUtil
 import com.google.api.services.calendar.model.Event
 import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
-import javax.validation.ConstraintViolation
-import javax.validation.ConstraintViolationException
 import javax.validation.Valid
 import java.sql.Timestamp
 
@@ -234,18 +229,6 @@ class AppointmentController {
         visit.appointment = new Appointment(id:dto.appointmentId)
         visit.person = person
         visitRepository.save(visit)
-    }
-
-    @ExceptionHandler(ConstraintViolationException)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResultDto handleConstraintViolationException(ConstraintViolationException e) {
-        ResultDto result = new ResultDto(success:false)
-
-        for (ConstraintViolation v : e.constraintViolations) {
-            result.messages.add(v.message)
-        }
-
-        result
     }
 
     @DeleteMapping('/appointment/cancel')

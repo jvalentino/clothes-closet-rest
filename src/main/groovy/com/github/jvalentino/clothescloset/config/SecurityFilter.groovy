@@ -3,6 +3,7 @@ package com.github.jvalentino.clothescloset.config
 import com.github.jvalentino.clothescloset.entity.SpringSession
 import com.github.jvalentino.clothescloset.repo.SpringSessionRepository
 import groovy.transform.CompileDynamic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Configurable
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletRequest
 @Configurable
 @CompileDynamic
 @SuppressWarnings(['UnnecessaryGetter', 'UnnecessarySetter', 'DuplicateStringLiteral'])
+@Slf4j
 class SecurityFilter extends GenericFilterBean {
 
     @Autowired
@@ -37,6 +39,7 @@ class SecurityFilter extends GenericFilterBean {
             FilterChain chain) throws IOException, ServletException {
 
         if (springSessionRepository == null) {
+            log.info("No springSessionRepository instance: ${request}")
             chain.doFilter(request, response)
             return
         }
@@ -58,6 +61,7 @@ class SecurityFilter extends GenericFilterBean {
 
         // if this is insecure just ignore it
         if (SecurityConfig.INSECURES.contains(pathInfo)) {
+            log.info("No security on ${pathInfo}: ${request}")
             chain.doFilter(request, response)
             return
         }
@@ -67,6 +71,7 @@ class SecurityFilter extends GenericFilterBean {
 
         // if we can't find it, throw an error
         if (results.size() == 0) {
+            log.error("No session ID for ${token}: ${request}")
             throw new ServletException("No session ID for ${token}")
         }
 
@@ -78,6 +83,8 @@ class SecurityFilter extends GenericFilterBean {
         sc.setAuthentication(authReq)
 
         //session.setMaxInactiveInterval(86400)
+
+        log.info("Authenticated: ${request}")
 
         chain.doFilter(request, response)
     }
