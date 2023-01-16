@@ -1,6 +1,7 @@
 package com.github.jvalentino.clothescloset.service
 
 import com.github.jvalentino.clothescloset.dto.AvailabilityDto
+import com.github.jvalentino.clothescloset.dto.CalendarBookingDto
 import com.github.jvalentino.clothescloset.dto.EventDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.TimeRangeDto
@@ -34,7 +35,8 @@ import org.springframework.stereotype.Service
         'UnnecessaryGetter',
         'UnnecessaryGString',
         'UnnecessarySetter',
-        'UnnecessaryPackageReference'])
+        'UnnecessaryPackageReference',
+        'DuplicateNumberLiteral'])
 class CalendarService {
 
     static final JsonFactory JSON_FACTORY = GsonFactory.defaultInstance
@@ -272,6 +274,15 @@ class CalendarService {
         }
         Calendar service = this.generateService()
         service.events().delete(GOOGLE_CAL_ID, eventId).execute()
+    }
+
+    CalendarBookingDto findAvailablilty(Date startDate, Date endDate, String timeZone) {
+        CalendarBookingDto result = new CalendarBookingDto()
+        result.calendarEvents = this.getEvents(startDate, endDate)
+        result.events = this.fillCalendar(result.calendarEvents, timeZone, startDate, endDate)
+        result.availability = this.findAvailableTimeSlots(result.events, timeZone, 30)
+
+        result
     }
 
     Credential getCredentials() {

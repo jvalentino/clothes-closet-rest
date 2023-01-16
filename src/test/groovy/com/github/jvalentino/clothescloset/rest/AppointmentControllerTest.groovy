@@ -69,6 +69,8 @@ class AppointmentControllerTest extends Specification {
 
         then:
         1 * subject.acceptedIdRepository.existsById(student.studentId) >> true
+        1 * subject.appointmentRepository.findByDate(
+                DateUtil.toDate(appointment.datetime, appointment.timeZone)) >> []
         1 * subject.guardianRepository.save(appointment.guardian)
         1 * subject.studentRepository.save(student)
         1 * subject.appointmentRepository.save(_) >> { Appointment app ->

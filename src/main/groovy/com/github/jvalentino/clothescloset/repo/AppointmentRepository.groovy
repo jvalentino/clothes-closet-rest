@@ -67,4 +67,10 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
         ''')
     List<Appointment> findForGuardian(String email, Long id)
 
+    @Query('''
+            select distinct appointment from Appointment appointment
+            where appointment.datetime = ?1
+        ''')
+    List<Appointment> findByDate(Date date)
+
 }

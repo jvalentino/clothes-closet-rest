@@ -3,6 +3,7 @@ package com.github.jvalentino.clothescloset.rest
 import com.github.jvalentino.clothescloset.dto.AddPersonDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
+import com.github.jvalentino.clothescloset.dto.CalendarBookingDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
@@ -25,7 +26,6 @@ import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
 import com.github.jvalentino.clothescloset.util.DateUtil
-import com.google.api.services.calendar.model.Event
 import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.validation.annotation.Validated
@@ -104,6 +104,13 @@ class AppointmentController {
             return result
         }
 
+        // then validate this this time slot is not already booked
+        List<Appointment> matches = appointmentRepository.findByDate(
+                DateUtil.toDate(appointment.datetime, appointment.timeZone))
+        if (matches.size() != 0) {
+            return new ResultDto(success:false, messages:['Already booked'], codes:['BOOKED'])
+        }
+
         // book this time on the calendar
         String eventId = calendarService.bookSlot(appointment)
 
@@ -175,9 +182,10 @@ class AppointmentController {
             startDateIso = startDateString
             endDateIso = endDateString
         }
-        List<Event> events = calendarService.getEvents(startDate, endDate)
-        result.events = calendarService.fillCalendar(events, timeZone, startDate, endDate)
-        result.availability = calendarService.findAvailableTimeSlots(result.events, timeZone, 30)
+
+        CalendarBookingDto booking = calendarService.findAvailablilty(startDate, endDate, timeZone)
+        result.events = booking.events
+        result.availability = booking.availability
 
         result
     }
