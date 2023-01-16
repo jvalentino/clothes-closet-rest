@@ -35,6 +35,8 @@ dependencies {
 	implementation 'org.springframework.session:spring-session-jdbc'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.14.1'
 
+	implementation 'com.opencsv:opencsv:5.7.1'
+
 	runtimeOnly 'io.micrometer:micrometer-registry-new-relic'
 	runtimeOnly 'org.postgresql:postgresql'
 

@@ -214,4 +214,13 @@ UPDATE phone_type SET order_position = 1 WHERE label = 'home';
 UPDATE phone_type SET order_position = 2 WHERE label = 'work';
 UPDATE phone_type SET order_position = 3 WHERE label = 'other';
 
+-- changeset liquibase:7
+ALTER TABLE accepted_id
+  ADD school VARCHAR(256);
+
+ALTER TABLE accepted_id
+  ADD grade VARCHAR(256);
+
+ALTER TABLE accepted_id
+  ADD status VARCHAR(256);
 
