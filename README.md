@@ -201,3 +201,14 @@ Guide: https://livefiredev.com/in-depth-guide-sign-in-with-google-in-a-react-js-
 ![01](./wiki/12.png)
 
 ![01](./wiki/13.png)
+
+# FAQ
+
+## Reseting the Heroku DB
+
+```sql
+heroku addons:create heroku-postgresql:basic --app clothes-closet-rest
+
+drop schema public cascade;
+create schema public;
+```

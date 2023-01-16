@@ -12,6 +12,7 @@ import com.github.jvalentino.clothescloset.entity.Person
 import com.github.jvalentino.clothescloset.entity.Settings
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
+import com.github.jvalentino.clothescloset.repo.AcceptedIdRepository
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
 import com.github.jvalentino.clothescloset.repo.GuardianRepository
 import com.github.jvalentino.clothescloset.repo.PersonRepository
@@ -37,6 +38,7 @@ class AppointmentControllerTest extends Specification {
         subject.calendarService = Mock(CalendarService)
         subject.personRepository = Mock(PersonRepository)
         subject.settingsRepository = Mock(SettingsRepository)
+        subject.acceptedIdRepository = Mock(AcceptedIdRepository)
     }
 
     def "test schedule"() {
@@ -66,6 +68,7 @@ class AppointmentControllerTest extends Specification {
         ResultDto result = subject.schedule(appointment)
 
         then:
+        1 * subject.acceptedIdRepository.existsById(student.studentId) >> true
         1 * subject.guardianRepository.save(appointment.guardian)
         1 * subject.studentRepository.save(student)
         1 * subject.appointmentRepository.save(_) >> { Appointment app ->
@@ -88,6 +91,39 @@ class AppointmentControllerTest extends Specification {
 
         and:
         result.success == true
+    }
+
+    def "test schedule when student not found"() {
+        given:
+        MakeAppointmentDto appointment = new MakeAppointmentDto()
+        appointment.datetime = '2023-05-01T00:00:00.000+0000'
+
+        appointment.guardian = new Guardian()
+        appointment.guardian.with {
+            email = "alpha"
+            firstName = "bravo"
+            lastName = "charlie"
+            phoneNumber = "delta"
+            phoneTypeLabel = "echo"
+        }
+
+        Student student = new Student()
+        student.with {
+            studentId = "foxtrot"
+            school = "golf"
+            gender = "hotel"
+            grade = "india"
+        }
+        appointment.students = [student]
+
+        when:
+        ResultDto result = subject.schedule(appointment)
+
+        then:
+        1 * subject.acceptedIdRepository.existsById(student.studentId) >> false
+        0 * subject.guardianRepository.save(appointment.guardian)
+        result.success == false
+
     }
 
     def "test searchAppointments when no parameters"() {

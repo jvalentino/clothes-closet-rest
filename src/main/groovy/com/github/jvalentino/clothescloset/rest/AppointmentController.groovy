@@ -90,9 +90,8 @@ class AppointmentController {
         ResultDto result = new ResultDto()
 
         // first check that all student Ids are on the list
-        /*for (Student student : appointment.students) {
+        for (Student student : appointment.students) {
             boolean found = acceptedIdRepository.existsById(student.studentId)
-            println "${student.studentId} ${found}"
 
             if (!found) {
                 result.messages.add(student.studentId)
@@ -103,7 +102,7 @@ class AppointmentController {
             result.success = false
             result.codes.add('STUDENT_IDS')
             return result
-        }*/
+        }
 
         // book this time on the calendar
         String eventId = calendarService.bookSlot(appointment)
