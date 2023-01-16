@@ -67,6 +67,12 @@ class SettingsController {
         // remove the first record because it is the title row
         records.remove(0)
 
+        for (AcceptedId entity : records) {
+            entity.studentId = entity.studentId.trim()
+            entity.school = entity.school.trim()
+            entity.grade = entity.grade.trim()
+        }
+
         // delete all current records
         acceptedIdRepository.deleteAll()
 

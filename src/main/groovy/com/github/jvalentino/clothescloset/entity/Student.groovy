@@ -3,6 +3,7 @@ package com.github.jvalentino.clothescloset.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileDynamic
 
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.Id
@@ -20,8 +21,9 @@ import javax.validation.constraints.NotBlank
 class Student {
 
     @Id
-    @NotBlank(message = 'id cannot be blank')
-    String id
+    @NotBlank(message = 'studentId cannot be blank')
+    @Column(name = 'student_id')
+    String studentId
 
     @NotBlank(message = 'school cannot be blank')
     String school

@@ -3,6 +3,7 @@ package com.github.jvalentino.clothescloset.entity
 import com.opencsv.bean.CsvBindByPosition
 import groovy.transform.CompileDynamic
 
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
@@ -18,7 +19,8 @@ class AcceptedId {
 
     @Id
     @CsvBindByPosition(position = 1)
-    String id
+    @Column( name = 'student_id')
+    String studentId
 
     @CsvBindByPosition(position = 0)
     String school

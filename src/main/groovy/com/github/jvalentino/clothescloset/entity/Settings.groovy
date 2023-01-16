@@ -2,6 +2,7 @@ package com.github.jvalentino.clothescloset.entity
 
 import groovy.transform.CompileDynamic
 
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -18,7 +19,8 @@ import javax.persistence.Table
 class Settings {
 
     @Id @GeneratedValue
-    Long id
+    @Column( name = 'settings_id')
+    Long settingsId
     String gender
     Integer quantity
     String label

@@ -25,7 +25,8 @@ import java.sql.Timestamp
 class Appointment {
 
     @Id @GeneratedValue
-    Long id
+    @Column(name = 'appointment_id')
+    Long appointmentId
 
     @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = 'guardian_email', referencedColumnName = 'email')

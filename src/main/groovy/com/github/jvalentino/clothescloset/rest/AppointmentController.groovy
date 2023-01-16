@@ -12,6 +12,7 @@ import com.github.jvalentino.clothescloset.entity.Person
 import com.github.jvalentino.clothescloset.entity.Settings
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
+import com.github.jvalentino.clothescloset.repo.AcceptedIdRepository
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
 import com.github.jvalentino.clothescloset.repo.GenderRepository
 import com.github.jvalentino.clothescloset.repo.GradeRepository
@@ -81,8 +82,29 @@ class AppointmentController {
     @Autowired
     SettingsRepository settingsRepository
 
+    @Autowired
+    AcceptedIdRepository acceptedIdRepository
+
     @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
+        ResultDto result = new ResultDto()
+
+        // first check that all student Ids are on the list
+        /*for (Student student : appointment.students) {
+            boolean found = acceptedIdRepository.existsById(student.studentId)
+            println "${student.studentId} ${found}"
+
+            if (!found) {
+                result.messages.add(student.studentId)
+            }
+        }
+
+        if (result.messages.size() != 0) {
+            result.success = false
+            result.codes.add('STUDENT_IDS')
+            return result
+        }*/
+
         // book this time on the calendar
         String eventId = calendarService.bookSlot(appointment)
 
@@ -119,7 +141,7 @@ class AppointmentController {
             visitRepository.save(visit)
         }
 
-        new ResultDto()
+        result
     }
 
     @GetMapping('/appointment/settings')
@@ -226,7 +248,7 @@ class AppointmentController {
         personRepository.save(person)
 
         Visit visit = new Visit()
-        visit.appointment = new Appointment(id:dto.appointmentId)
+        visit.appointment = new Appointment(appointmentId:dto.appointmentId)
         visit.person = person
         visitRepository.save(visit)
     }
@@ -252,12 +274,12 @@ class AppointmentController {
             visit.happened = true
 
             if (visit.student != null) {
-                visit.student = studentRepository.findById(visit.student.id).get()
+                visit.student = studentRepository.findById(visit.student.studentId).get()
             }
 
             if (visit.person != null) {
                 String relation = visit.person.relation
-                visit.person = personRepository.findById(visit.person.id).get()
+                visit.person = personRepository.findById(visit.person.personId).get()
                 visit.person.relation = relation
             }
 
@@ -287,7 +309,7 @@ class AppointmentController {
             }
         }
 
-        result.previous = appointmentRepository.findForGuardian(appointment.guardian.email, appointment.id)
+        result.previous = appointmentRepository.findForGuardian(appointment.guardian.email, appointment.appointmentId)
 
         if (result.previous.size() == 0) {
             result.firstTime = true

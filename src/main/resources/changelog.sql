@@ -54,11 +54,11 @@ INSERT INTO grade(label) VALUES ('11');
 INSERT INTO grade(label) VALUES ('12');
 
 CREATE TABLE student (
-    id VARCHAR(256),
+    student_id VARCHAR(256),
     school VARCHAR(256),
     gender VARCHAR(256),
     grade VARCHAR(256),
-    PRIMARY KEY (id),
+    PRIMARY KEY (student_id),
     FOREIGN KEY (school) REFERENCES school (label) ON UPDATE CASCADE,
     FOREIGN KEY (gender) REFERENCES gender (label) ON UPDATE CASCADE,
     FOREIGN KEY (grade) REFERENCES grade (label) ON UPDATE CASCADE
@@ -72,24 +72,24 @@ INSERT INTO semester(label) VALUES ('Spring');
 INSERT INTO semester(label) VALUES ('Fall');
 
 CREATE TABLE appointment (
-    id SERIAL,
+    appointment_id SERIAL,
     guardian_email VARCHAR(256),
     datetime TIMESTAMPTZ,
     year int,
     semester VARCHAR(256),
-    PRIMARY KEY (id),
+    PRIMARY KEY (appointment_id),
     FOREIGN KEY (guardian_email) REFERENCES guardian (email) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (semester) REFERENCES semester (label) ON UPDATE CASCADE
 );
 
 CREATE TABLE person (
-    id SERIAL,
+    person_id SERIAL,
     relation VARCHAR(256),
-    PRIMARY KEY (id)
+    PRIMARY KEY (person_id)
 );
 
 CREATE TABLE visit (
-    id SERIAL,
+    visit_id SERIAL,
     appointment_id int,
     student_id VARCHAR(256),
     person_id int,
@@ -100,18 +100,18 @@ CREATE TABLE visit (
     backpacks int,
     misc int,
     happened boolean,
-    PRIMARY KEY (id),
-    FOREIGN KEY (appointment_id) REFERENCES appointment (id) ON DELETE CASCADE ON UPDATE CASCADE, 
-    FOREIGN KEY (student_id) REFERENCES student (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (person_id) REFERENCES person (id) ON DELETE CASCADE ON UPDATE CASCADE      
+    PRIMARY KEY (visit_id),
+    FOREIGN KEY (appointment_id) REFERENCES appointment (appointment_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES student (student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (person_id) REFERENCES person (person_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE settings (
-    id SERIAL,
+    settings_id SERIAL,
     gender VARCHAR(256),
     label VARCHAR(256),
     quantity int,
-    PRIMARY KEY (id),
+    PRIMARY KEY (settings_id),
     FOREIGN KEY (gender) REFERENCES gender (label) ON UPDATE CASCADE
 );
 INSERT INTO settings(gender, label, quantity) VALUES ('Male', 'Tops', 5);
@@ -138,8 +138,8 @@ INSERT INTO settings(gender, label, quantity) VALUES ('Female', 'Dress', 1);
 INSERT INTO settings(gender, label, quantity) VALUES ('Female', 'School Supplies and Backpack', 1);
 
 CREATE TABLE accepted_id (
-    id VARCHAR(256),
-    PRIMARY KEY (id)
+    student_id VARCHAR(256),
+    PRIMARY KEY (student_id)
 );
 
 -- changeset liquibase:2

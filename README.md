@@ -118,7 +118,7 @@ Since we are using Spring magic to map to and from Objects and JSON, we have to 
 
 # Had to do it Once
 
-## Heroku Setup
+## Heroku Database Setup
 
 FIrst, this has to be attached to a specific app, so you first have to go about creating the application., which I called `clothes-closet-rest` and is associated with https://github.com/jvalentino/clothes-closet-rest.
 

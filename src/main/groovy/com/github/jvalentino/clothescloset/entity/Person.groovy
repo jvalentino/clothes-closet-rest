@@ -3,6 +3,7 @@ package com.github.jvalentino.clothescloset.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileDynamic
 
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
@@ -20,7 +21,8 @@ import javax.persistence.Table
 class Person {
 
     @Id @GeneratedValue
-    Long id
+    @Column( name = 'person_id')
+    Long personId
 
     String relation
 

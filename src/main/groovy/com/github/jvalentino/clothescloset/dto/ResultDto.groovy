@@ -11,5 +11,6 @@ class ResultDto {
 
     boolean success = true
     List<String> messages = []
+    List<String> codes = []
 
 }

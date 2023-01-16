@@ -232,7 +232,7 @@ class CalendarService {
         eventText += "<ol>"
 
         for (Student student : appointment.students) {
-            eventText += "<li>${student.id}, ${student.gender}, ${student.grade}, ${student.school} </li>"
+            eventText += "<li>${student.studentId}, ${student.gender}, ${student.grade}, ${student.school} </li>"
         }
         eventText += "</ol>"
 

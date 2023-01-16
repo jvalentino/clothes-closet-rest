@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileDynamic
 
 import javax.persistence.CascadeType
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
@@ -23,19 +24,20 @@ import javax.persistence.Table
 class Visit {
 
     @Id @GeneratedValue
-    Long id
+    @Column(name = 'visit_id')
+    Long visitId
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinColumn(name = 'appointment_id', referencedColumnName = 'id')
+    @JoinColumn(name = 'appointment_id', referencedColumnName = 'appointment_id')
     @JsonIgnore
     Appointment appointment
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinColumn(name = 'student_id', referencedColumnName = 'id')
+    @JoinColumn(name = 'student_id', referencedColumnName = 'student_id')
     Student student
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinColumn(name = 'person_id', referencedColumnName = 'id')
+    @JoinColumn(name = 'person_id', referencedColumnName = 'person_id')
     Person person
 
     Integer socks

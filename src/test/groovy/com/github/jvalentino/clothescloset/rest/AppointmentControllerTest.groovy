@@ -55,7 +55,7 @@ class AppointmentControllerTest extends Specification {
 
         Student student = new Student()
         student.with {
-            id = "foxtrot"
+            studentId = "foxtrot"
             school = "golf"
             gender = "hotel"
             grade = "india"
@@ -79,7 +79,7 @@ class AppointmentControllerTest extends Specification {
         }
         1 * subject.visitRepository.save(_) >> { Visit visit ->
             assert visit.appointment.guardian.email == appointment.guardian.email
-            assert visit.student.id == student.id
+            assert visit.student.studentId == student.studentId
             assert visit.happened == false
 
             return visit
@@ -218,7 +218,7 @@ class AppointmentControllerTest extends Specification {
         1 * subject.appointmentRepository.getAppointmentDetails(id) >> []
 
         and:
-        result.id == null
+        result.appointmentId == null
     }
 
     def "test getAppointmentDetails when match"() {
@@ -252,13 +252,13 @@ class AppointmentControllerTest extends Specification {
         then:
         1 * subject.personRepository.save(dto.person)
         1 * subject.visitRepository.save(_) >> { Visit visit ->
-            visit.id = 123L
-            assert visit.appointment.id == 1L
+            visit.visitId = 123L
+            assert visit.appointment.appointmentId == 1L
             visit
         }
 
         and:
-        result.id == 123L
+        result.visitId == 123L
         result.person.relation == 'alpha'
     }
 
@@ -288,7 +288,7 @@ class AppointmentControllerTest extends Specification {
         and:
         Guardian guardian = new Guardian(email:'alpha@bravo.com')
 
-        Appointment appointment = new Appointment(id:1L)
+        Appointment appointment = new Appointment(appointmentId: 1L)
         appointment.guardian = guardian
         appointment.happened = false
         appointment.datetime = DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000')
@@ -296,8 +296,8 @@ class AppointmentControllerTest extends Specification {
         appointment.semester = 'Spring'
 
         and:
-        Visit visit1 = new Visit(id:2L, happened:false)
-        visit1.student = new Student(id:'3')
+        Visit visit1 = new Visit(visitId:2L, happened:false)
+        visit1.student = new Student(studentId:'3')
         visit1.with {
             socks = 10
             underwear = 11
@@ -309,11 +309,11 @@ class AppointmentControllerTest extends Specification {
         dto.visits.add(visit1)
 
         Optional<Student> optionalStudent = GroovyMock()
-        Student originalStudent = new Student(id:'3')
+        Student originalStudent = new Student(studentId:'3')
 
         and:
-        Visit visit2 = new Visit(id:4L, happened:false,)
-        visit2.person = new Person(id:5L,  relation:'mother')
+        Visit visit2 = new Visit(visitId:4L, happened:false,)
+        visit2.person = new Person(personId:5L,  relation:'mother')
         visit2.with {
             socks = 20
             underwear = 21
@@ -325,7 +325,7 @@ class AppointmentControllerTest extends Specification {
         dto.visits.add(visit2)
 
         Optional<Person> optionalPerson = GroovyMock()
-        Person originalPerson = new Person(id:5L)
+        Person originalPerson = new Person(personId:5L)
 
         when:
         ResultDto result = subject.updateAppointment(dto)
@@ -373,7 +373,7 @@ class AppointmentControllerTest extends Specification {
         String timeZone = 'GMT'
 
         and:
-        Appointment appointment = new Appointment(id:1L)
+        Appointment appointment = new Appointment(appointmentId: 1L)
         appointment.datetime = DateUtil.isoToTimestamp('2023-01-02T00:00:00.000+0000')
         appointment.guardian = new Guardian(email:'charlie')
 
@@ -389,12 +389,12 @@ class AppointmentControllerTest extends Specification {
         then:
         1 * subject.appointmentRepository.getAppointmentDetails(id) >> [appointment]
         1 * subject.settingsRepository.retrieveAll() >> settings
-        1 * subject.appointmentRepository.findForGuardian(appointment.guardian.email, appointment.id) >> []
+        1 * subject.appointmentRepository.findForGuardian(appointment.guardian.email, appointment.appointmentId) >> []
 
         and:
         result.firstTime == true
         result.lastAppointmentDateIso == null
-        result.appointment.id == appointment.id
+        result.appointment.appointmentId == appointment.appointmentId
         result.appointment.datetimeIso == '2023-01-02T00:00:00.000+0000'
         result.boySettings.size() == 1
         result.girlSettings.size() == 1
@@ -409,7 +409,7 @@ class AppointmentControllerTest extends Specification {
         String timeZone = 'GMT'
 
         and:
-        Appointment appointment = new Appointment(id:1L)
+        Appointment appointment = new Appointment(appointmentId: 1L)
         appointment.datetime = DateUtil.isoToTimestamp('2023-01-02T00:00:00.000+0000')
         appointment.guardian = new Guardian(email:'charlie')
 
@@ -429,12 +429,12 @@ class AppointmentControllerTest extends Specification {
         then:
         1 * subject.appointmentRepository.getAppointmentDetails(id) >> [appointment]
         1 * subject.settingsRepository.retrieveAll() >> settings
-        1 * subject.appointmentRepository.findForGuardian(appointment.guardian.email, appointment.id) >> [previous]
+        1 * subject.appointmentRepository.findForGuardian(appointment.guardian.email, appointment.appointmentId) >> [previous]
 
         and:
         result.firstTime == false
         result.lastAppointmentDateIso == '2023-01-01T00:00:00.000+0000'
-        result.appointment.id == appointment.id
+        result.appointment.appointmentId == appointment.appointmentId
         result.appointment.datetimeIso == '2023-01-02T00:00:00.000+0000'
         result.boySettings.size() == 1
         result.girlSettings.size() == 1
