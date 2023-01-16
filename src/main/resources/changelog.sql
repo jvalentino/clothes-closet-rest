@@ -187,10 +187,31 @@ UPDATE appointment SET happened = false where happened IS NULL;
 ALTER TABLE appointment
   ADD event_id  VARCHAR(256);
 
+-- changeset liquibase:6
+ALTER TABLE grade
+  ADD order_position int;
 
+UPDATE grade SET order_position = 0 WHERE label = 'Pre-K';
+UPDATE grade SET order_position = 1 WHERE label = 'K';
+UPDATE grade SET order_position = 2 WHERE label = '1';
+UPDATE grade SET order_position = 3 WHERE label = '2';
+UPDATE grade SET order_position = 4 WHERE label = '3';
+UPDATE grade SET order_position = 5 WHERE label = '4';
+UPDATE grade SET order_position = 6 WHERE label = '5';
+UPDATE grade SET order_position = 7 WHERE label = '6';
+UPDATE grade SET order_position = 8 WHERE label = '7';
+UPDATE grade SET order_position = 9 WHERE label = '8';
+UPDATE grade SET order_position = 10 WHERE label = '9';
+UPDATE grade SET order_position = 11 WHERE label = '10';
+UPDATE grade SET order_position = 12 WHERE label = '11';
+UPDATE grade SET order_position = 13 WHERE label = '12';
 
+ALTER TABLE phone_type
+  ADD order_position int;
 
-
-
+UPDATE phone_type SET order_position = 0 WHERE label = 'mobile';
+UPDATE phone_type SET order_position = 1 WHERE label = 'home';
+UPDATE phone_type SET order_position = 2 WHERE label = 'work';
+UPDATE phone_type SET order_position = 3 WHERE label = 'other';
 
 

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query
  */
 interface PhoneTypeRepository extends JpaRepository<PhoneType, String> {
 
-    @Query('select distinct phoneType from PhoneType phoneType order by phoneType.label')
+    @Query('select distinct phoneType from PhoneType phoneType order by phoneType.orderPosition')
     List<PhoneType> retrieveAll()
 
 }

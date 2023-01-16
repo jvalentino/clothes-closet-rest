@@ -2,6 +2,7 @@ package com.github.jvalentino.clothescloset.entity
 
 import groovy.transform.CompileDynamic
 
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
@@ -19,5 +20,8 @@ class Grade {
     @Id
     @NotBlank(message = 'label cannot be blank')
     String label
+
+    @Column(name = 'order_position')
+    Integer orderPosition
 
 }

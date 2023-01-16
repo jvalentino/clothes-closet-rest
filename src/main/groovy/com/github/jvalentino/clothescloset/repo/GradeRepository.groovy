@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query
  */
 interface GradeRepository extends JpaRepository<Grade, String> {
 
-    @Query('select distinct grade from Grade grade order by grade.label')
+    @Query('select distinct grade from Grade grade order by grade.orderPosition')
     List<Grade> retrieveAll()
 
 }
