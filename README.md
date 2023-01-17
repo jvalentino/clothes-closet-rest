@@ -1,7 +1,6 @@
 # Clothes Closet REST 
 
 
-
 # Developer Setup
 
 ## Database
