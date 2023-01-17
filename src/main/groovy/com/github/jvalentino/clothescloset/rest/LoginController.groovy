@@ -66,7 +66,11 @@ class LoginController {
         session.setAttribute('SPRING_SECURITY_CONTEXT', sc)
         session.setMaxInactiveInterval(86400)
 
-        new AuthResponseDto(sessionId:session.getId())
+        new AuthResponseDto(
+                sessionId:session.getId(),
+                name:idToken.getPayload().getUnknownKeys().get('name'),
+                pictureUrl:idToken.getPayload().getUnknownKeys().get('picture')
+        )
     }
 
 }

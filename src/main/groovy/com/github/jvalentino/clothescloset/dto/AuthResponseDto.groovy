@@ -10,5 +10,7 @@ import groovy.transform.CompileDynamic
 class AuthResponseDto extends ResultDto {
 
     String sessionId
+    String name
+    String pictureUrl
 
 }
