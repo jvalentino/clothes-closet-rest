@@ -1,6 +1,7 @@
 # Clothes Closet REST 
 
 
+
 # Developer Setup
 
 ## Database
@@ -86,6 +87,19 @@ Otherwise the environment variable of `GOOGLE_CAL_ID` points to the name of the 
 
 - DEV: `2dbcdac838ad46afef97271b63c8dc213a523a33f85f1b83ea3cc162d14e6963@group.calendar.google.com`
 - PROD: TBD
+
+## Running Locally
+
+In order to be able to schedule appointments, you will need to create at least one accepted student ID, by running the following in pgadmin:
+
+```
+insert into accepted_id (student_id) values ('T01');
+```
+
+It is then a matter of executing the main class of `ClothesclosetApplication`, but then having to go in and change that runtime to include the environmment variables regarding the calendar for:
+
+- GOOGLE_CRED_JSON
+- GOOGLE_CAL_ID
 
 
 

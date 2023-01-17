@@ -71,8 +71,8 @@ class SecurityFilter extends GenericFilterBean {
 
         // if we can't find it, throw an error
         if (results.size() == 0) {
-            log.error("No session ID for ${token}: ${request}")
-            throw new ServletException("No session ID for ${token}")
+            log.error("No session ID for ${token} on ${pathInfo}: ${request}")
+            throw new ServletException("No session ID for ${token} on ${pathInfo}")
         }
 
         SpringSession session = results.first()

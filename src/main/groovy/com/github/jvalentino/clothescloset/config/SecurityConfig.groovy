@@ -29,6 +29,7 @@ class SecurityConfig {
             '/appointment/settings',
             '/appointment/schedule',
             '/error',
+            '/favicon.ico',
     ]
 
     @Autowired
