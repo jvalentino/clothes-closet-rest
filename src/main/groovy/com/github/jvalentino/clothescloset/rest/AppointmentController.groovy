@@ -27,6 +27,7 @@ import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
 import com.github.jvalentino.clothescloset.util.DateUtil
 import groovy.transform.CompileDynamic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -47,6 +48,7 @@ import java.sql.Timestamp
 @RestController
 @Validated
 @SuppressWarnings(['OptionalMethodParameter'])
+@Slf4j
 class AppointmentController {
 
     @Autowired
@@ -327,6 +329,16 @@ class AppointmentController {
         }
 
         result
+    }
+
+    @GetMapping('/appointment/report')
+    ResultDto report(@RequestParam String start, @RequestParam String end) {
+        Date startDate = DateUtil.fromYearMonthDay(start)
+        Date endDate = DateUtil.fromYearMonthDay(end)
+
+        List<Appointment> result = appointmentRepository.findWithVisits(startDate, endDate)
+        log.info(result)
+        new ResultDto()
     }
 
 }
