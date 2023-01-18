@@ -4,6 +4,7 @@ import com.github.jvalentino.clothescloset.dto.AddPersonDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
+import com.github.jvalentino.clothescloset.dto.ReportingDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.dto.UpdateAppointmentDto
 import com.github.jvalentino.clothescloset.entity.Appointment
@@ -480,5 +481,66 @@ class AppointmentControllerTest extends Specification {
         result.girlSettings.get(0).label == 'bravo'
         result.previous.size() == 1
         result.previous.get(0).datetimeIso == '2023-01-01T00:00:00.000+0000'
+    }
+
+    def "test report"() {
+        given:
+        String start = '2023-01-01'
+        String end = '2023-02-01'
+
+        and:
+        Visit visit1 = this.makeVisit(
+                "alpha",
+                null,
+                1, 2, 3, 4, 5, 6)
+        Visit visit2 = this.makeVisit(
+                null,
+                "bravo",
+                10, 20, 30, 40, 50, 60)
+        Appointment appointment1 = new Appointment(visits:[visit1, visit2])
+
+        Visit visit3 = this.makeVisit(
+                "charlie",
+                null,
+                100, 200, 300, 400, 500, 600)
+        Appointment appointment2 = new Appointment(visits:[visit3])
+
+
+        List<Appointment> appointments = [appointment1, appointment2]
+
+        when:
+        ReportingDto result = subject.report(start, end)
+
+        then:
+        1 * subject.appointmentRepository.findWithVisits(_, _) >> appointments
+
+        and:
+        result.start == start
+        result.end == end
+        result.totalPeople == 3
+        result.students == 2
+        result.persons == 1
+        result.socks == 111
+        result.underwear == 222
+        result.shoes == 333
+        result.coats == 444
+        result.backpacks == 555
+        result.misc == 666
+        result.total == 2331
+    }
+
+    // utilities
+    Visit makeVisit(String studentId, String relation, int socks, int underwear, int shoes, int coats,
+                    int backpacks, int misc) {
+        Visit visit = new Visit(happened:true, socks:socks, underwear:underwear, shoes:shoes, coats:coats,
+            backpacks:backpacks, misc:misc)
+
+        if (studentId != null) {
+            visit.student = new Student(studentId:studentId)
+        } else {
+            visit.person = new Person(relation:relation)
+        }
+
+        visit
     }
 }

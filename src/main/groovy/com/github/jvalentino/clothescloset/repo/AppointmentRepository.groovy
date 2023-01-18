@@ -76,7 +76,9 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query('''
             select distinct a from Appointment a
             left join fetch a.visits as v
-            where a.datetime >= ?1 and a.datetime <= ?2
+            left join fetch v.person
+            left join fetch v.student
+            where a.happened = true and a.datetime >= ?1 and a.datetime <= ?2
         ''')
     List<Appointment> findWithVisits(Date startDate, Date endDate)
 

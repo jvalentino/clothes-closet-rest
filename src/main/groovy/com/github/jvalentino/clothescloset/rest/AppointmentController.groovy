@@ -6,6 +6,7 @@ import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
 import com.github.jvalentino.clothescloset.dto.CalendarBookingDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
+import com.github.jvalentino.clothescloset.dto.ReportingDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.dto.UpdateAppointmentDto
 import com.github.jvalentino.clothescloset.entity.Appointment
@@ -332,13 +333,39 @@ class AppointmentController {
     }
 
     @GetMapping('/appointment/report')
-    ResultDto report(@RequestParam String start, @RequestParam String end) {
+    @SuppressWarnings(['NestedForLoop', 'UnnecessaryObjectReferences'])
+    ReportingDto report(@RequestParam String start, @RequestParam String end) {
+        ReportingDto result = new ReportingDto(start:start, end:end)
+
         Date startDate = DateUtil.fromYearMonthDay(start)
         Date endDate = DateUtil.fromYearMonthDay(end)
 
-        List<Appointment> result = appointmentRepository.findWithVisits(startDate, endDate)
-        log.info(result)
-        new ResultDto()
+        List<Appointment> appointments = appointmentRepository.findWithVisits(startDate, endDate)
+        for (Appointment appointment : appointments) {
+            result.appointents++
+
+            for (Visit visit : appointment.visits) {
+                if (visit.student != null) {
+                    result.students++
+                } else {
+                    result.persons++
+                }
+
+                result.totalPeople++
+
+                result.socks += visit.socks
+                result.underwear += visit.underwear
+                result.shoes += visit.shoes
+                result.coats += visit.coats
+                result.backpacks += visit.backpacks
+                result.misc += visit.misc
+
+                result.total += visit.socks + visit.underwear + visit.shoes +
+                        visit.coats + visit.backpacks + visit.misc
+            }
+        }
+
+        result
     }
 
 }

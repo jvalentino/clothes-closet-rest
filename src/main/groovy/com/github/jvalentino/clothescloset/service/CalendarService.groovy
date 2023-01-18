@@ -98,7 +98,7 @@ class CalendarService {
         // fill all the times that are not open
         Date lastEndDate = startDate
         for (Event event : events) {
-            if (event.getSummary().toLowerCase() != OPEN) {
+            if (event.getSummary()?.toLowerCase() != OPEN) {
                 continue
             }
 
@@ -126,7 +126,7 @@ class CalendarService {
 
         // now we have to handle actual bookings
         for (Event event : events) {
-            if (event.getSummary().toLowerCase() == OPEN) {
+            if (event.getSummary()?.toLowerCase() == OPEN) {
                 continue
             }
 
