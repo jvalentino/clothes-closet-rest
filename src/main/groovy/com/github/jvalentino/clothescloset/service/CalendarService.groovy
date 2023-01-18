@@ -22,6 +22,7 @@ import com.google.api.services.calendar.Calendar
 import com.google.api.services.calendar.CalendarScopes
 import com.google.api.services.calendar.model.Event
 import com.google.api.services.calendar.model.Events
+import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Service
 
 /**
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service
  */
 @CompileDynamic
 @Service
+@Slf4j
 @SuppressWarnings([
         'NoJavaUtilDate',
         'UnnecessaryGetter',
@@ -128,14 +130,18 @@ class CalendarService {
                 continue
             }
 
-            EventDto appointment = new EventDto()
-            appointment.with {
-                start = DateUtil.eventDateTimeToIso(event.getStart(), timeZone)
-                end = DateUtil.eventDateTimeToIso(event.getEnd(), timeZone)
-                title = 'Appointment'
-                color = COLOR_APPOINTMENT
+            try {
+                EventDto appointment = new EventDto()
+                appointment.with {
+                    start = DateUtil.eventDateTimeToIso(event.getStart(), timeZone)
+                    end = DateUtil.eventDateTimeToIso(event.getEnd(), timeZone)
+                    title = 'Appointment'
+                    color = COLOR_APPOINTMENT
+                }
+                results.add(appointment)
+            } catch (e) {
+                log.error("Could not process event ${event.getSummary()}: ${e.message}")
             }
-            results.add(appointment)
         }
 
         results
