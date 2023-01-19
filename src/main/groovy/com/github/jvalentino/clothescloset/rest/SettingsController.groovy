@@ -1,6 +1,7 @@
 package com.github.jvalentino.clothescloset.rest
 
 import com.github.jvalentino.clothescloset.dto.ResultDto
+import com.github.jvalentino.clothescloset.dto.SettingsDto
 import com.github.jvalentino.clothescloset.dto.UploadAcceptedDto
 import com.github.jvalentino.clothescloset.entity.AcceptedId
 import com.github.jvalentino.clothescloset.entity.School
@@ -11,7 +12,6 @@ import com.github.jvalentino.clothescloset.repo.SettingsRepository
 import com.opencsv.bean.CsvToBeanBuilder
 import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -38,8 +38,12 @@ class SettingsController {
     SchoolRepository schoolRepository
 
     @GetMapping('/settings')
-    List<Settings> all() {
-        settingsRepository.retrieveAll()
+    SettingsDto all() {
+        SettingsDto result = new SettingsDto()
+
+        result.settings = settingsRepository.retrieveAll()
+
+        result
     }
 
     @PostMapping('/settings')
@@ -48,7 +52,7 @@ class SettingsController {
         new ResultDto()
     }
 
-    @DeleteMapping('/settings')
+    @PostMapping('/settings/delete')
     ResultDto deleteSetting(@RequestParam Long id) {
         settingsRepository.deleteById(id)
         new ResultDto()

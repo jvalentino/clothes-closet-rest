@@ -1,6 +1,13 @@
 # Clothes Closet REST 
 
+This project represents the Spring Boot based Backend used for hosting the RESTful services for the Clothes Closet System.
 
+- It using Spock for Unit Testing, because it is the best
+- It is written in Groovy, which is for lazy Java programmers that don't like semicolons and getters/setters
+- It uses the Liquibase integration for managing database changes
+- It uses JPA for database interaction
+- It uses codenarc for static code analysis
+- It uses custom authentication and session management in order validate and use the Google Oauth tokens provided by the client
 
 # Developer Setup
 

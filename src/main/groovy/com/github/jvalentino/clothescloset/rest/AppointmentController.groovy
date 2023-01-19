@@ -93,17 +93,9 @@ class AppointmentController {
         ResultDto result = new ResultDto()
 
         // first check that all student Ids are on the list
-        for (Student student : appointment.students) {
-            boolean found = acceptedIdRepository.existsById(student.studentId)
-
-            if (!found) {
-                result.messages.add(student.studentId)
-            }
-        }
+        this.validateStudentIdsOnList(appointment, result)
 
         if (result.messages.size() != 0) {
-            result.success = false
-            result.codes.add('STUDENT_IDS')
             return result
         }
 
@@ -114,8 +106,28 @@ class AppointmentController {
             return new ResultDto(success:false, messages:['Already booked'], codes:['BOOKED'])
         }
 
+        // create a new appointment
+        Appointment app = new Appointment()
+        app.guardian = appointment.guardian
+        app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
+        app.year = DateUtil.getYear(app.datetime)
+        app.happened = false
+
+        if (app.datetime.month >= 0 && app.datetime.month <= 5) {
+            app.semester = 'Spring'
+        } else {
+            app.semester = 'Fall'
+        }
+
+        // now make sure these students have not already had a visit this semester
+        this.validateStudentsHaveNotAlreadyBeen(appointment, result, app)
+        if (result.messages.size() != 0) {
+            return result
+        }
+
         // book this time on the calendar
         String eventId = calendarService.bookSlot(appointment)
+        app.eventId = eventId
 
         // handle the guardian
         guardianRepository.save(appointment.guardian)
@@ -123,20 +135,6 @@ class AppointmentController {
         // handle each student
         for (Student student : appointment.students) {
             studentRepository.save(student)
-        }
-
-        // create a new appointment
-        Appointment app = new Appointment()
-        app.guardian = appointment.guardian
-        app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
-        app.year = DateUtil.getYear(app.datetime)
-        app.happened = false
-        app.eventId = eventId
-
-        if (app.datetime.month >= 0 && app.datetime.month <= 5) {
-            app.semester = 'Spring'
-        } else {
-            app.semester = 'Fall'
         }
 
         app = appointmentRepository.save(app)
@@ -151,6 +149,46 @@ class AppointmentController {
         }
 
         result
+    }
+
+    void validateStudentIdsOnList(MakeAppointmentDto appointment, ResultDto result) {
+        for (Student student : appointment.students) {
+            boolean found = acceptedIdRepository.existsById(student.studentId)
+
+            if (!found) {
+                result.messages.add(student.studentId)
+            }
+        }
+
+        if (result.messages.size() != 0) {
+            result.success = false
+            result.codes.add('STUDENT_IDS')
+        }
+    }
+
+    @SuppressWarnings(['NestedForLoop'])
+    void validateStudentsHaveNotAlreadyBeen(MakeAppointmentDto appointment, ResultDto result,
+                                            Appointment app) {
+        List<String> studentIds = []
+        for (Student student : appointment.students) {
+            studentIds.add(student.studentId)
+        }
+        List<Appointment> prevAppointments = appointmentRepository.findWithVisitsByStudentIds(
+                app.semester, app.year, studentIds
+        )
+
+        if (prevAppointments.size() != 0) {
+            result.success = false
+            result.codes = ['ALREADY_BEEN']
+            for (Appointment a : prevAppointments) {
+                for (Visit v : a.visits) {
+                    if (studentIds.contains(v.student.studentId)) {
+                        result.messages.add(v.student.studentId + ' ' +
+                                DateUtil.fromDate(new Date(a.datetime.time), appointment.timeZone))
+                    }
+                }
+            }
+        }
     }
 
     @GetMapping('/appointment/settings')
