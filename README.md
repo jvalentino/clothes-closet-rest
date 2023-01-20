@@ -17,8 +17,6 @@ This is a liquibase project for managing a PostgreSQL database as it runs on Her
 
 SpringBoot within the REST app is otherwise use to execute it as needed on startup, which is great.
 
-### Prerequisites
-
 You need Docker, pgadmin, Docker Compose, and LiquidBase:
 
 ```bash
@@ -31,21 +29,6 @@ brew install pssql
 
 When in doubt, run https://github.com/jvalentino/setup-automation
 
-### Setup Script
-
-You need to set some environmment variables for the local database username and password:
-
-```bash
-./setup.sh
-source ~/.zshrc
-```
-
-This will create environment variables for:
-
-- CC_DB_USERNAME
-- CC_DB_PASSWORD
-- CC_JDBC_URL
-
 You then launch the local container:
 
 ```bash
@@ -56,35 +39,7 @@ You then have to create the initial database using pgadmin
 
 ![01](./wiki/01.png)
 
-You can then verify the connectivity via:
 
-```bash
-~/workspaces/personal/clothes-closet-db $ ./status.sh    
-
-+ liquibase --username=postgres --password=postgres --changelog-file=changelog.sql --url=jdbc:postgresql://localhost:5432/ccdb status
-####################################################
-##   _     _             _ _                      ##
-##  | |   (_)           (_) |                     ##
-##  | |    _  __ _ _   _ _| |__   __ _ ___  ___   ##
-##  | |   | |/ _` | | | | | '_ \ / _` / __|/ _ \  ##
-##  | |___| | (_| | |_| | | |_) | (_| \__ \  __/  ##
-##  \_____/_|\__, |\__,_|_|_.__/ \__,_|___/\___|  ##
-##              | |                               ##
-##              |_|                               ##
-##                                                ## 
-##  Get documentation at docs.liquibase.com       ##
-##  Get certified courses at learn.liquibase.com  ## 
-##  Free schema change activity reports at        ##
-##      https://hub.liquibase.com                 ##
-##                                                ##
-####################################################
-Starting Liquibase at 07:43:55 (version 4.18.0 #5864 built at 2022-12-02 18:02+0000)
-Liquibase Version: 4.18.0
-Liquibase Community 4.18.0 by Liquibase
-1 changesets have not been applied to postgres@jdbc:postgresql://localhost:5432/ccdb
-Liquibase command 'status' was executed successfully.
-~/workspaces/personal/clothes-closet-db $
-```
 
 ## Google Calendar
 
@@ -93,7 +48,7 @@ The Google API requires a json file for the service account, so the best way I c
 Otherwise the environment variable of `GOOGLE_CAL_ID` points to the name of the claendar to use:
 
 - DEV: `2dbcdac838ad46afef97271b63c8dc213a523a33f85f1b83ea3cc162d14e6963@group.calendar.google.com`
-- PROD: TBD
+- PROD: f0e93aa61240d9696c787e784352bb761158e6da2b1d63c94695eac63e6240cb@group.calendar.google.com
 
 ## Running Locally
 
@@ -107,8 +62,22 @@ It is then a matter of executing the main class of `ClothesclosetApplication`, b
 
 - GOOGLE_CRED_JSON
 - GOOGLE_CAL_ID
+- SMTP_PASSWORD
 
+# Heroku Runtime Environment
 
+All inputs are represented as environment variables under the settings:
+
+![01](./wiki/26.png)
+
+- **DATABASE_URL** - This is generated and maintained by Heroku itself, noting that the URL changes with credential rotation and is also wrong. I had to write a special data handler to pull the username, password, and URL for JDBC out of this
+- **GOOGLE_CAL_ID** - The ID of the calendaer
+- **GOOGLE_CRED_JSON** - The base64 encoded credentials.json from the Google service account
+- **SMTP_PASSWORD** - The GoDaddy SMTP password for noreply@clothescloset.app
+
+It is otherwise setup to run test and check automation on code change, and then direclty deploy to production:
+
+![01](./wiki/27.png)
 
 # Security
 
@@ -216,13 +185,55 @@ https://console.cloud.google.com/apis/library/calendar-json.googleapis.com?proje
 
 Guide: https://livefiredev.com/in-depth-guide-sign-in-with-google-in-a-react-js-application/
 
-
+Note that you don't need the calender scope, as we are not using the calendar for individual users.
 
 ![01](./wiki/06.png)
 
 ![01](./wiki/12.png)
 
 ![01](./wiki/13.png)
+
+
+
+## GoDaddy Domain and SSL
+
+https://www.godaddy.com/ just happens to be the means by which the custom domain of https://clothescloset.app was purchased, including it SSL certificate that is needed for that https part of the URL. This has become required as most browsers won't even allow you to go to an http site by default anymore. Using this with Heroku though required some special DNS-level configuraiton.
+
+![01](./wiki/24.png)
+
+You then have to add the certficate public and private keys to Heroku:
+
+![01](./wiki/25.png)
+
+
+
+## GoDaddy Email
+
+Note that this first required that the domain be setup, which was done for the front-end: 
+
+- https://github.com/jvalentino/clothes-closet-ui#custom-domain-name-setup
+
+I then had to add basic email support to the domain, and then setup the mailbox:
+
+![01](./wiki/23.png)
+
+After creating a new email account, you have to manually enable SMTP:
+
+![01](./wiki/22.png)
+
+The SMTP settings where then a matter of trial and error:
+
+```properties
+spring.mail.host=smtpout.secureserver.net
+spring.mail.port=587
+spring.mail.username=noreply@clothescloset.app
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+```
+
+https://www.godaddy.com/help/server-and-port-settings-for-workspace-email-6949 was the only place to get it correct.
+
+
 
 # FAQ
 

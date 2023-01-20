@@ -1,7 +1,9 @@
 package com.github.jvalentino.clothescloset.rest
 
 import com.github.jvalentino.clothescloset.dto.ResultDto
+import com.github.jvalentino.clothescloset.service.EmailService
 import groovy.transform.CompileDynamic
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
@@ -14,8 +16,17 @@ import org.springframework.web.bind.annotation.RestController
 @EnableWebSecurity
 class ProtectedEndpoint {
 
+    @Autowired
+    EmailService emailService
+
     @GetMapping('/protected')
     ResultDto getProtected() {
+        new ResultDto()
+    }
+
+    @GetMapping('/protected/email/test')
+    ResultDto sendEmailTest() {
+        emailService.sendEmail('Test Subject', 'This is a test', 'jvalentino2@gmail.com')
         new ResultDto()
     }
 

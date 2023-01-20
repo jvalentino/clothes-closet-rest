@@ -37,6 +37,9 @@ dependencies {
 
 	implementation 'com.opencsv:opencsv:5.7.1'
 
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
+	implementation 'org.springframework:spring-context-support'
+
 	runtimeOnly 'io.micrometer:micrometer-registry-new-relic'
 	runtimeOnly 'org.postgresql:postgresql'
 
