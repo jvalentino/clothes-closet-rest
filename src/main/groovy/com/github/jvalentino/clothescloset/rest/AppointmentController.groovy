@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
+import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import java.sql.Timestamp
 
@@ -48,7 +49,12 @@ import java.sql.Timestamp
 @CompileDynamic
 @RestController
 @Validated
-@SuppressWarnings(['OptionalMethodParameter'])
+@SuppressWarnings([
+        'OptionalMethodParameter',
+        'NoJavaUtilDate',
+        'UnnecessaryObjectReferences',
+        'UnnecessaryGetter',
+])
 @Slf4j
 class AppointmentController {
 
@@ -89,7 +95,7 @@ class AppointmentController {
     AcceptedIdRepository acceptedIdRepository
 
     @PostMapping('/appointment/schedule')
-    ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment) {
+    ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment, HttpServletRequest request) {
         ResultDto result = new ResultDto()
 
         // first check that all student Ids are on the list
@@ -112,6 +118,10 @@ class AppointmentController {
         app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
         app.year = DateUtil.getYear(app.datetime)
         app.happened = false
+        app.notified = false
+        app.createdDateTime = new Timestamp(new Date().time)
+        app.ipAddress = request.getRemoteAddr()
+        app.locale = appointment.locale
 
         if (app.datetime.month >= 0 && app.datetime.month <= 5) {
             app.semester = 'Spring'

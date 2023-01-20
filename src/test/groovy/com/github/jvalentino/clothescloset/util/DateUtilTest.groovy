@@ -2,6 +2,8 @@ package com.github.jvalentino.clothescloset.util
 
 import spock.lang.Specification
 
+import java.sql.Timestamp
+
 class DateUtilTest extends Specification {
 
     def "test fromDate"() {
@@ -36,5 +38,16 @@ class DateUtilTest extends Specification {
 
         then:
         result == '2023-02-03T00:00:00.000+0000'
+    }
+
+    def "test timestampToFriendlyTime"() {
+        given:
+        Timestamp timestamp = DateUtil.isoToTimestamp('2023-02-03T10:30:00.000+0000')
+
+        when:
+        String result = DateUtil.timestampToFriendlyTime(timestamp)
+
+        then:
+        result == 'Friday, Feb 3, 2023 at 10:30 AM GMT'
     }
 }

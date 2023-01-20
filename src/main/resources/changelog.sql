@@ -224,3 +224,18 @@ ALTER TABLE accepted_id
 ALTER TABLE accepted_id
   ADD status VARCHAR(256);
 
+-- changeset liquibase:8
+ALTER TABLE appointment
+  ADD notified boolean;
+
+ALTER TABLE appointment
+  ADD created_datetime TIMESTAMPTZ;
+
+ALTER TABLE appointment
+  ADD ip_address VARCHAR(256);
+
+ALTER TABLE appointment
+  ADD locale VARCHAR(10);
+
+UPDATE appointment SET notified = false where notified IS NULL;
+UPDATE appointment SET locale = 'en' where locale IS NULL;

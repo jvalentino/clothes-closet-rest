@@ -25,6 +25,8 @@ import com.github.jvalentino.clothescloset.util.DateUtil
 import spock.lang.Specification
 import spock.lang.Subject
 
+import javax.servlet.http.HttpServletRequest
+
 class AppointmentControllerTest extends Specification {
 
     @Subject
@@ -46,6 +48,7 @@ class AppointmentControllerTest extends Specification {
         given:
         MakeAppointmentDto appointment = new MakeAppointmentDto()
         appointment.datetime = '2023-05-01T00:00:00.000+0000'
+        appointment.locale = 'fr'
 
         appointment.guardian = new Guardian()
         appointment.guardian.with {
@@ -65,10 +68,14 @@ class AppointmentControllerTest extends Specification {
         }
         appointment.students = [student]
 
+        and:
+        HttpServletRequest request = GroovyMock()
+
         when:
-        ResultDto result = subject.schedule(appointment)
+        ResultDto result = subject.schedule(appointment, request)
 
         then:
+        1 * request.getRemoteAddr() >> '0.0.0.1'
         1 * subject.acceptedIdRepository.existsById(student.studentId) >> true
         1 * subject.appointmentRepository.findByDate(
                 DateUtil.toDate(appointment.datetime, appointment.timeZone)) >> []
@@ -82,6 +89,10 @@ class AppointmentControllerTest extends Specification {
             assert app.year == 2023
             assert app.semester == "Spring"
             assert app.happened == false
+            assert app.notified == false
+            assert app.createdDateTime != null
+            assert app.ipAddress == '0.0.0.1'
+            assert app.locale == 'fr'
 
             return app
         }
@@ -121,8 +132,11 @@ class AppointmentControllerTest extends Specification {
         }
         appointment.students = [student]
 
+        and:
+        HttpServletRequest request = GroovyMock()
+
         when:
-        ResultDto result = subject.schedule(appointment)
+        ResultDto result = subject.schedule(appointment, request)
 
         then:
         1 * subject.acceptedIdRepository.existsById(student.studentId) >> false

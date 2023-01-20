@@ -21,6 +21,8 @@ class MakeAppointmentDto {
 
     String timeZone = 'America/Chicago'
 
+    String locale = 'en'
+
     @NotNull(message = 'guardian cannot be blank')
     @Valid
     Guardian guardian

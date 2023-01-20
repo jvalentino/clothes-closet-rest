@@ -85,6 +85,16 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query('''
             select distinct a from Appointment a
             left join fetch a.visits as v
+            left join fetch a.guardian
+            left join fetch v.person
+            left join fetch v.student
+            where a.happened = false and a.notified = false and a.datetime >= ?1 and a.datetime <= ?2
+        ''')
+    List<Appointment> findWithVisitsNeedingNotification(Date startDate, Date endDate)
+
+    @Query('''
+            select distinct a from Appointment a
+            left join fetch a.visits as v
             left join fetch v.student as s
             where a.semester = ?1 and a.year = ?2
             and s.studentId in ?3

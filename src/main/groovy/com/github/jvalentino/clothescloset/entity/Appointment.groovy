@@ -46,6 +46,16 @@ class Appointment {
     @Column(name = 'event_id')
     String eventId
 
+    Boolean notified
+
+    @Column(name = 'created_datetime')
+    Timestamp createdDateTime
+
+    @Column(name = 'ip_address')
+    String ipAddress
+
+    String locale
+
     @OneToMany(mappedBy='appointment', fetch = FetchType.LAZY)
     Set<Visit> visits
 

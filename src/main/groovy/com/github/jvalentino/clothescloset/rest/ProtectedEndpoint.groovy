@@ -26,7 +26,7 @@ class ProtectedEndpoint {
 
     @GetMapping('/protected/email/test')
     ResultDto sendEmailTest() {
-        emailService.sendEmail('Test Subject', 'This is a test', 'jvalentino2@gmail.com')
+        emailService.sendEmail('Test Subject', '<h1>This is a test</h1><p>hi</p>', 'jvalentino2@gmail.com')
         new ResultDto()
     }
 

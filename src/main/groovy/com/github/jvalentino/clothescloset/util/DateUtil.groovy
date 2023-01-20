@@ -13,12 +13,13 @@ import java.text.SimpleDateFormat
  * @author john.valentino
  */
 @CompileDynamic
-@SuppressWarnings(['UnnecessaryGString', 'UnnecessarySetter', 'UnnecessaryGetter'])
+@SuppressWarnings(['UnnecessaryGString', 'UnnecessarySetter', 'UnnecessaryGetter', 'NoJavaUtilDate'])
 class DateUtil {
 
     static final String ISO = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
     static final String GMT = 'GMT'
     static final String YYYY_MM_DD = 'yyyy-MM-dd'
+    static final String FRIENDLY = 'EEEEE, MMM d, yyyy \'at\' hh:mm aaa z'
 
     static Date toDate(String iso, String timeZone=GMT) {
         DateFormat df1 = new SimpleDateFormat(ISO, Locale.ENGLISH)
@@ -73,6 +74,13 @@ class DateUtil {
 
     static Timestamp isoToTimestamp(String iso, String timeZone=GMT) {
         new Timestamp(DateUtil.toDate(iso, timeZone).time)
+    }
+
+    static String timestampToFriendlyTime(Timestamp timestamp, String timeZone=GMT) {
+        Date date = new Date(timestamp.time)
+        DateFormat dateFormat = new SimpleDateFormat(FRIENDLY, Locale.ENGLISH)
+        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone))
+        dateFormat.format(date)
     }
 
 }
