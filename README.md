@@ -63,6 +63,7 @@ It is then a matter of executing the main class of `ClothesclosetApplication`, b
 - GOOGLE_CRED_JSON
 - GOOGLE_CAL_ID
 - SMTP_PASSWORD
+- CC_EMAIL
 
 # Heroku Runtime Environment
 
@@ -74,6 +75,7 @@ All inputs are represented as environment variables under the settings:
 - **GOOGLE_CAL_ID** - The ID of the calendaer
 - **GOOGLE_CRED_JSON** - The base64 encoded credentials.json from the Google service account
 - **SMTP_PASSWORD** - The GoDaddy SMTP password for noreply@clothescloset.app
+- **CC_EMAIL** - When sending notifications prior to appointment, this address will be included as CC, which is set to clothescloset@hebisd.edu
 
 It is otherwise setup to run test and check automation on code change, and then direclty deploy to production:
 
@@ -221,10 +223,20 @@ After creating a new email account, you have to manually enable SMTP:
 
 ![01](./wiki/22.png)
 
+Since this can't be just this easy, consider the GoDaddy SMTP limits the number of emails to 25 per day, which is useless. Thankfully GoDaddy sets up Office3655, so you can just use their SMTP with the following limits:
+
+> Office 365 users are limited by the following: 
+>
+> - 10,000 sent email messages per day
+> - 500 recipients total for a single email
+> - 30 emails sent per minute
+
+https://support.nutshell.com/hc/en-us/articles/360013686553-Email-sending-limitations
+
 The SMTP settings where then a matter of trial and error:
 
 ```properties
-spring.mail.host=smtpout.secureserver.net
+spring.mail.host=smtp.office365.com
 spring.mail.port=587
 spring.mail.username=noreply@clothescloset.app
 spring.mail.properties.mail.smtp.auth=true
@@ -232,6 +244,8 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 ```
 
 https://www.godaddy.com/help/server-and-port-settings-for-workspace-email-6949 was the only place to get it correct.
+
+
 
 
 
