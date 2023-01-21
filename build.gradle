@@ -49,6 +49,7 @@ dependencies {
 	testImplementation 'junit:junit:4.13.2'
 	testImplementation 'cglib:cglib-nodep:3.3.0'
 	testImplementation 'org.objenesis:objenesis:3.3'
+	testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test') {
@@ -58,6 +59,7 @@ tasks.named('test') {
 // JACACO!
 test {
 	finalizedBy jacocoTestReport // report is always generated after tests run
+	exclude '**/DataSourceConfig**'
 }
 jacocoTestReport {
 	dependsOn test // tests are required to run before generating the report
