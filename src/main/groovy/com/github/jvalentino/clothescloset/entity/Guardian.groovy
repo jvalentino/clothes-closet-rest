@@ -1,10 +1,13 @@
 package com.github.jvalentino.clothescloset.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileDynamic
 
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.Id
+import javax.persistence.OneToMany
 import javax.persistence.Table
 import javax.validation.constraints.NotBlank
 
@@ -36,5 +39,9 @@ class Guardian {
     @Column(name = 'phone_type_label')
     @NotBlank(message = 'phoneTypeLabel cannot be blank')
     String phoneTypeLabel
+
+    @OneToMany(mappedBy='guardian', fetch = FetchType.LAZY)
+    @JsonIgnore
+    Set<Appointment> appointments
 
 }

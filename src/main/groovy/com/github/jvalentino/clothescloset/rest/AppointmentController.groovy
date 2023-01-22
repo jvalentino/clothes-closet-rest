@@ -5,6 +5,7 @@ import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
 import com.github.jvalentino.clothescloset.dto.CalendarBookingDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
+import com.github.jvalentino.clothescloset.dto.MultiPrintRequestDto
 import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ReportingDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
@@ -26,6 +27,7 @@ import com.github.jvalentino.clothescloset.repo.SettingsRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
+import com.github.jvalentino.clothescloset.service.PdfService
 import com.github.jvalentino.clothescloset.util.DateUtil
 import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
@@ -38,7 +40,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
+import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
 import java.sql.Timestamp
 
@@ -54,6 +58,7 @@ import java.sql.Timestamp
         'NoJavaUtilDate',
         'UnnecessaryObjectReferences',
         'UnnecessaryGetter',
+        'UnnecessarySetter',
 ])
 @Slf4j
 class AppointmentController {
@@ -93,6 +98,9 @@ class AppointmentController {
 
     @Autowired
     AcceptedIdRepository acceptedIdRepository
+
+    @Autowired
+    PdfService pdfService
 
     @PostMapping('/appointment/schedule')
     ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment, HttpServletRequest request) {
@@ -351,33 +359,59 @@ class AppointmentController {
     PrintAppointmentDto getPrintDetails(@RequestParam Long id,
                                         @RequestParam(required = false, defaultValue = 'America/Chicago')
                                         String timeZone) {
+        MultiPrintRequestDto input = new MultiPrintRequestDto(ids:[id], timeZone:timeZone)
+        this.getPrintDetails(input).first()
+    }
 
-        Appointment appointment = appointmentRepository.getAppointmentDetails(id).first()
-        addIsoToAppointments([appointment], timeZone)
+    @PostMapping('/appointment/prints')
+    @SuppressWarnings(['NestedForLoop'])
+    List<PrintAppointmentDto> getPrintDetails(@Valid @RequestBody MultiPrintRequestDto input) {
+        List<PrintAppointmentDto> results = []
 
-        PrintAppointmentDto result = new PrintAppointmentDto(appointment:appointment)
+        List<Appointment> appointments = appointmentRepository.getAppointmentDetailsWithGuardianAppts(input.ids)
+        addIsoToAppointments(appointments, input.timeZone)
 
         List<Settings> settings = settingsRepository.retrieveAll()
 
-        for (Settings setting : settings) {
-            if (setting.gender == 'Male') {
-                result.boySettings.add(setting)
-            } else {
-                result.girlSettings.add(setting)
+        for (Appointment appointment : appointments) {
+            PrintAppointmentDto result = new PrintAppointmentDto(appointment:appointment)
+
+            for (Settings setting : settings) {
+                if (setting.gender == 'Male') {
+                    result.boySettings.add(setting)
+                } else {
+                    result.girlSettings.add(setting)
+                }
             }
+
+            if (appointment.guardian?.appointments?.size() <= 1) {
+                result.firstTime = true
+            } else {
+                result.previous = appointment.guardian.appointments.toList()
+                result.firstTime = false
+                addIsoToAppointments(result.previous, input.timeZone)
+                result.lastAppointmentDateIso = result.previous.get(1) .datetimeIso
+            }
+
+            results.add(result)
         }
 
-        result.previous = appointmentRepository.findForGuardian(appointment.guardian.email, appointment.appointmentId)
+        results
+    }
 
-        if (result.previous.size() == 0) {
-            result.firstTime = true
-        } else {
-            result.firstTime = false
-            addIsoToAppointments(result.previous, timeZone)
-            result.lastAppointmentDateIso = result.previous.first().datetimeIso
-        }
+    // http://localhost:8080/appointment/pdf/example?x-auth-token=4c4e0a3e-2895-425c-84f7-d5c15279cbcc
+    @GetMapping('/appointment/pdf/example')
+    void pdfExample(HttpServletResponse response) {
+        ByteArrayOutputStream byteArrayOutputStream = pdfService.generateHelloWorld()
 
-        result
+        response.setContentType('application/pdf')
+        String headerKey = 'Content-Disposition'
+        String headerValue = 'attachment; filename=users.pdf'
+
+        response.setHeader(headerKey, headerValue)
+
+        ServletOutputStream out = response.getOutputStream()
+        out.write(byteArrayOutputStream.toByteArray())
     }
 
     @GetMapping('/appointment/report')

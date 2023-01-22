@@ -442,9 +442,8 @@ class AppointmentControllerTest extends Specification {
         PrintAppointmentDto result = subject.getPrintDetails(id, timeZone)
 
         then:
-        1 * subject.appointmentRepository.getAppointmentDetails(id) >> [appointment]
+        1 * subject.appointmentRepository.getAppointmentDetailsWithGuardianAppts([id]) >> [appointment]
         1 * subject.settingsRepository.retrieveAll() >> settings
-        1 * subject.appointmentRepository.findForGuardian(appointment.guardian.email, appointment.appointmentId) >> []
 
         and:
         result.firstTime == true
@@ -475,16 +474,17 @@ class AppointmentControllerTest extends Specification {
         ]
 
         and:
-        Appointment previous = new Appointment()
-        previous.datetime = DateUtil.isoToTimestamp('2023-01-01T00:00:00.000+0000')
+        appointment.guardian.appointments = [
+                new Appointment(datetime:DateUtil.isoToTimestamp('2023-01-02T00:00:00.000+0000')),
+                new Appointment(datetime:DateUtil.isoToTimestamp('2023-01-01T00:00:00.000+0000'))
+        ]
 
         when:
         PrintAppointmentDto result = subject.getPrintDetails(id, timeZone)
 
         then:
-        1 * subject.appointmentRepository.getAppointmentDetails(id) >> [appointment]
+        1 * subject.appointmentRepository.getAppointmentDetailsWithGuardianAppts([id]) >> [appointment]
         1 * subject.settingsRepository.retrieveAll() >> settings
-        1 * subject.appointmentRepository.findForGuardian(appointment.guardian.email, appointment.appointmentId) >> [previous]
 
         and:
         result.firstTime == false
@@ -495,8 +495,8 @@ class AppointmentControllerTest extends Specification {
         result.girlSettings.size() == 1
         result.boySettings.get(0).label == 'alpha'
         result.girlSettings.get(0).label == 'bravo'
-        result.previous.size() == 1
-        result.previous.get(0).datetimeIso == '2023-01-01T00:00:00.000+0000'
+        result.previous.size() == 2
+        result.previous.get(1).datetimeIso == '2023-01-01T00:00:00.000+0000'
     }
 
     def "test report"() {

@@ -76,6 +76,7 @@ All inputs are represented as environment variables under the settings:
 - **GOOGLE_CRED_JSON** - The base64 encoded credentials.json from the Google service account
 - **SMTP_PASSWORD** - The GoDaddy SMTP password for noreply@clothescloset.app
 - **CC_EMAIL** - When sending notifications prior to appointment, this address will be included as CC, which is set to clothescloset@hebisd.edu
+- **GRADLE_TASK** - Set to `build`, which is because by default heroku runs `gradle build -x check`, which means that the `check` task is exluded. Since there is where our test automation is, we don't want to skip that since this acts as our pipeline
 
 It is otherwise setup to run test and check automation on code change, and then direclty deploy to production:
 
@@ -245,9 +246,73 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 
 https://www.godaddy.com/help/server-and-port-settings-for-workspace-email-6949 was the only place to get it correct.
 
+## Integration Testing Setup
 
+Consider that by default, we are running the Spring Boot stack using PostgreSQL and Liquibase, which are two things we don't want to use when integraiton testing. Instead, we just want to use H2 in memory in combination with automatic schema generation. To do this though, require some configuration magic.
 
+### Example Integration Test
 
+```groovy
+@EnableAutoConfiguration(exclude = [LiquibaseAutoConfiguration])
+@ExtendWith(SpringExtension)
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestPropertySource(
+        locations = "classpath:integration.properties")
+class ProtectedEndpointIntgTest {
+
+    @Autowired
+    MockMvc mockMvc
+
+    @Test
+    void testProtected() {
+
+    }
+
+}
+```
+
+We speicially have to tell it to ignore liquibase, and also use our integration.properties instead of application.properties.
+
+### integration.properties
+
+```properties
+management.metrics.export.newrelic.enabled=false
+
+spring.jpa.database-platform= org.hibernate.dialect.H2Dialect
+spring.datasource.url=jdbc:h2:mem:test;NON_KEYWORDS=year
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.H2Dialect
+spring.jpa.generate-ddl=true
+spring.jpa.hibernate.ddl-auto = update
+liquibase.enabled=false
+
+management.endpoint.health.show-details=always
+
+newrelic.config.agent_enabled=false
+server.port=${PORT:8080}
+
+spring.session.store-type=jdbc
+
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
+google.directions.link=https://www.google.com/maps/dir//32.8199886,-97.1358205/@32.8202211,-97.1357283,122m/data=!3m1!1e3
+google.directions.address=1100 Raider Dr, Euless, TX, United States, Texas
+contact.phone=817-399-2559
+```
+
+It is the same as application.properties, but with the connection infromation swapped out for H2, and I accidentally used the h2 keyword of year so I had to add it to the allowed list.
+
+### test/../DataSourceConfig
+
+```groovy
+@Configuration
+class DataSourceConfig {
+
+}
+```
+
+Since I had to create a custom datasource class to extract the JDBC connection information out of DATBASE_URL on Heroku, I had to not do that in testing. The easiest way was to create a duplicate class but on the test classpath.
 
 # FAQ
 
