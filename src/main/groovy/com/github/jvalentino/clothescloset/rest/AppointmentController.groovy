@@ -226,7 +226,7 @@ class AppointmentController {
         if (endDateString == null) {
             Calendar c = Calendar.instance
             c.time = startDate
-            c.add(Calendar.MONTH, 3)
+            c.add(Calendar.MONTH, 6)
             endDateString = DateUtil.fromDate(c.time, timeZone)
         }
 

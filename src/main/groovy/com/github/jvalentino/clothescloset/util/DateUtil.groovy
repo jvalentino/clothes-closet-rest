@@ -20,6 +20,8 @@ class DateUtil {
     static final String GMT = 'GMT'
     static final String YYYY_MM_DD = 'yyyy-MM-dd'
     static final String FRIENDLY = 'EEEEE, MMM d, yyyy \'at\' hh:mm aaa z'
+    static final String MM_DD_YYYY = 'MM/dd/yyyy'
+    static final String TIME = 'hh:mm aaa z'
 
     static Date toDate(String iso, String timeZone=GMT) {
         DateFormat df1 = new SimpleDateFormat(ISO, Locale.ENGLISH)
@@ -79,6 +81,20 @@ class DateUtil {
     static String timestampToFriendlyTime(Timestamp timestamp, String timeZone=GMT) {
         Date date = new Date(timestamp.time)
         DateFormat dateFormat = new SimpleDateFormat(FRIENDLY, Locale.ENGLISH)
+        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone))
+        dateFormat.format(date)
+    }
+
+    static String timestampToFriendlyMonthDayYear(Timestamp timestamp, String timeZone=GMT) {
+        Date date = new Date(timestamp.time)
+        DateFormat dateFormat = new SimpleDateFormat(MM_DD_YYYY, Locale.ENGLISH)
+        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone))
+        dateFormat.format(date)
+    }
+
+    static String timestampToFriendlyTimeAMPM(Timestamp timestamp, String timeZone=GMT) {
+        Date date = new Date(timestamp.time)
+        DateFormat dateFormat = new SimpleDateFormat(TIME, Locale.ENGLISH)
         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone))
         dateFormat.format(date)
     }
