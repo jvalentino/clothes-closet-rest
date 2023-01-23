@@ -46,11 +46,11 @@ class PdfServiceTest extends Specification {
                 firstTime:false, lastAppointmentDateIso:'2023-01-01T00:00:00.000+0000')
         one.girlSettings = [
                 new Settings(label:'Bottoms', quantity:3),
-                new Settings(label:'Bras', quantity:2)
+                new Settings(label:'School Supplies and Backpack', quantity:2)
         ]
         one.boySettings = [
                 new Settings(label:'Coats', quantity:4),
-                new Settings(label:'Pair Shoes', quantity:1)
+                new Settings(label:'School Supplies and Backpack', quantity:1)
         ]
         Appointment a1 = new Appointment()
         a1.with {

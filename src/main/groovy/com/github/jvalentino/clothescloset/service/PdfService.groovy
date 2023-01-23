@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service
         'AbcMetric',
         'ParameterCount',
         'MethodSize',
+        'DuplicateNumberLiteral',
 ])
 class PdfService {
 
@@ -187,20 +188,59 @@ class PdfService {
 
         // Settings
         y -= yOffsetMajor
+        y -= yOffsetMajor
         x = PAGE_LEFT_X
 
         // Girl Student
-        this.drawSettings(stream, x, y, 'Girl Student', appointment.girlSettings)
+        int gY = this.drawSettings(stream, x, y, 'Girl Student', appointment.girlSettings)
         x += 250
 
-        this.drawSettings(stream, x, y, 'Boy Student', appointment.girlSettings)
+        // Boy Student
+        int bY = this.drawSettings(stream, x, y, 'Boy Student', appointment.girlSettings)
+
+        if (bY < gY) {
+            y = bY
+        } else {
+            y = gY
+        }
+
+        // Signature
+        y -= yOffsetMajor
+        y -= yOffsetMajor
+        x = PAGE_LEFT_X
+
+        this.drawText(stream, 'Parent Signature:', x, y, true)
+        x +=  xOffsetMajor
+
+        stream.drawLine(x , y, x + xOffsetMajor * 2, y)
 
         stream.close()
     }
 
     @SuppressWarnings(['UnusedMethodParameter'])
-    protected void drawSettings(PDPageContentStream stream, int x, int y, String title, List<Settings> settings) {
+    protected int drawSettings(PDPageContentStream stream, int x, int y, String title, List<Settings> settings) {
+        int xOffsetMajor = 230
+        int xOffsetMinor = 170
+        int yOffsetMajor = 30
+        int yOffsetMinor = 15
+
         this.drawText(stream, title, x, y, true)
+        y -= yOffsetMajor
+
+        for (Settings setting : settings) {
+            this.drawText(
+                    stream,
+                    "${setting.quantity} ${setting.label}",
+                    x,
+                    y,
+                    true)
+
+            stream.drawLine(x + xOffsetMinor , y, x + xOffsetMajor, y)
+
+            y -= yOffsetMinor
+        }
+
+        y
     }
 
     protected void drawText(PDPageContentStream stream,

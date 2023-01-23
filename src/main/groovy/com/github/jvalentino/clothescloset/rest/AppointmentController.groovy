@@ -59,6 +59,7 @@ import java.sql.Timestamp
         'UnnecessaryObjectReferences',
         'UnnecessaryGetter',
         'UnnecessarySetter',
+        'DuplicateStringLiteral',
 ])
 @Slf4j
 class AppointmentController {
@@ -407,6 +408,22 @@ class AppointmentController {
         response.setContentType('application/pdf')
         String headerKey = 'Content-Disposition'
         String headerValue = 'attachment; filename=users.pdf'
+
+        response.setHeader(headerKey, headerValue)
+
+        ServletOutputStream out = response.getOutputStream()
+        out.write(byteArrayOutputStream.toByteArray())
+    }
+
+    @PostMapping('/appointment/pdf')
+    void pdf(@Valid @RequestBody MultiPrintRequestDto input, HttpServletResponse response) {
+        List<PrintAppointmentDto> appointments = this.getPrintDetails(input)
+
+        ByteArrayOutputStream byteArrayOutputStream = pdfService.generate(appointments, input.timeZone)
+
+        response.setContentType('application/pdf')
+        String headerKey = 'Content-Disposition'
+        String headerValue = 'attachment; filename=appointments.pdf'
 
         response.setHeader(headerKey, headerValue)
 
