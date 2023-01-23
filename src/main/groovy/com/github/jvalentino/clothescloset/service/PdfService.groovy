@@ -181,9 +181,13 @@ class PdfService {
         this.drawText(stream, 'Last:', x, y, true)
         x +=  xOffsetMinor
 
+        String lastDateTime = 'N/A'
+        if (appointment.lastAppointmentDateIso != null) {
+            lastDateTime = DateUtil.timestampToFriendlyMonthDayYear(
+                    DateUtil.isoToTimestamp(appointment.lastAppointmentDateIso, timeZone), timeZone)
+        }
         this.drawText(stream,
-                DateUtil.timestampToFriendlyMonthDayYear(
-                        DateUtil.isoToTimestamp(appointment.lastAppointmentDateIso, timeZone), timeZone),
+                lastDateTime,
                 x, y)
 
         // Settings
