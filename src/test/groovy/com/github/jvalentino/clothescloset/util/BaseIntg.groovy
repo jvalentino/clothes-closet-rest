@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MvcResult
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import spock.lang.Specification
 
@@ -25,7 +26,7 @@ import spock.lang.Specification
 @EnableAutoConfiguration(exclude = [LiquibaseAutoConfiguration])
 @ExtendWith(SpringExtension)
 @SpringBootTest
-@Transactional
+@Transactional//(propagation = Propagation.NESTED)
 @AutoConfigureMockMvc
 @TestPropertySource(
         locations = "classpath:integration.properties")

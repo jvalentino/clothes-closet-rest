@@ -5,7 +5,6 @@ import com.github.jvalentino.clothescloset.entity.Student
 import groovy.transform.CompileDynamic
 
 import javax.validation.Valid
-import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
@@ -14,9 +13,9 @@ import javax.validation.constraints.NotNull
  * @author john.valentino
  */
 @CompileDynamic
+@SuppressWarnings(['NoJavaUtilDate'])
 class MakeAppointmentDto {
 
-    @NotBlank(message = 'datetime cannot be blank')
     String datetime
 
     String timeZone = 'America/Chicago'
@@ -25,12 +24,14 @@ class MakeAppointmentDto {
 
     boolean waitlist = false
 
+    Date currentDate = new Date()
+
     @NotNull(message = 'guardian cannot be blank')
     @Valid
     Guardian guardian
 
     @NotEmpty(message = 'students cannot be empty')
     @Valid
-    List<Student> students
+    List<Student> students = []
 
 }

@@ -6,6 +6,7 @@ import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
 import com.github.jvalentino.clothescloset.dto.CalendarBookingDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentResultDto
+import com.github.jvalentino.clothescloset.dto.MoveFromWaitListDto
 import com.github.jvalentino.clothescloset.dto.MultiPrintRequestDto
 import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ReportingDto
@@ -115,9 +116,9 @@ class AppointmentController {
             return result
         }
 
-        // then validate this this time slot is not already booked
-        List<Appointment> matches = appointmentRepository.findByDate(
-                DateUtil.toDate(appointment.datetime, appointment.timeZone))
+        // then validate this this time slot is not already booked (if not going onto the wait list)
+        List<Appointment> matches = this.findAlreadyBookedSlots(appointment)
+
         if (matches.size() != 0) {
             return new ResultDto(success:false, messages:['Already booked'], codes:['BOOKED'])
         }
@@ -131,9 +132,11 @@ class AppointmentController {
             return result
         }
 
-        // book this time on the calendar
-        String eventId = calendarService.bookSlot(appointment)
-        app.eventId = eventId
+        // book this time on the calendar if not on the wait list
+        if (!appointment.waitlist) {
+            String eventId = calendarService.bookSlot(appointment)
+            app.eventId = eventId
+        }
 
         // handle the guardian
         guardianRepository.save(appointment.guardian)
@@ -161,6 +164,33 @@ class AppointmentController {
         result
     }
 
+    @PostMapping('/appointment/waitlist/move')
+    ResultDto moveFromWaitList(@Valid @RequestBody MoveFromWaitListDto input) {
+        ResultDto result = new ResultDto()
+
+        Appointment appointment = appointmentRepository.getAppointmentDetails(input.appointmentId).first()
+        appointment.waitlist = false
+        appointment.datetime = DateUtil.isoToTimestamp(input.datetime, input.timeZone)
+        appointment.year = this.determineYear(appointment.datetime)
+        appointment.semester = this.determineSemester(appointment.datetime)
+
+        MakeAppointmentDto makeAppointment = new MakeAppointmentDto()
+        makeAppointment.datetime = input.datetime
+        makeAppointment.timeZone = input.timeZone
+        makeAppointment.guardian = appointment.guardian
+
+        for (Visit visit : appointment.visits) {
+            if (visit.student != null) {
+                makeAppointment.students.add(visit.student)
+            }
+        }
+        appointment.eventId = calendarService.bookSlot(makeAppointment)
+
+        appointmentRepository.save(appointment)
+
+        result
+    }
+
     void validateStudentIdsOnList(MakeAppointmentDto appointment, ResultDto result) {
         for (Student student : appointment.students) {
             boolean found = acceptedIdRepository.existsById(student.studentId)
@@ -176,25 +206,48 @@ class AppointmentController {
         }
     }
 
+    List<Appointment> findAlreadyBookedSlots(MakeAppointmentDto appointment) {
+        // if ths is for the waitlist, there is no time slot
+        if (appointment.waitlist) {
+            return []
+        }
+        List<Appointment> matches = appointmentRepository.findByDate(
+                DateUtil.toDate(appointment.datetime, appointment.timeZone))
+        matches
+    }
+
     Appointment generateAppointment(MakeAppointmentDto appointment, HttpServletRequest request) {
         Appointment app = new Appointment()
         app.guardian = appointment.guardian
-        app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
-        app.year = DateUtil.getYear(app.datetime)
         app.happened = false
         app.notified = false
-        app.createdDateTime = new Timestamp(new Date().time)
+        app.createdDateTime = new Timestamp(appointment.currentDate.time)
         app.ipAddress = request.getRemoteAddr()
         app.locale = appointment.locale
         app.waitlist = appointment.waitlist
 
-        if (app.datetime.month >= 0 && app.datetime.month <= 5) {
-            app.semester = 'Spring'
+        if (appointment.waitlist) {
+            app.datetime = null
+            app.year = this.determineYear(app.createdDateTime)
+            app.semester = this.determineSemester(app.createdDateTime)
         } else {
-            app.semester = 'Fall'
+            app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
+            app.year = this.determineYear(app.datetime)
+            app.semester = this.determineSemester(app.datetime)
         }
 
         app
+    }
+
+    int determineYear(Timestamp timestamp) {
+        DateUtil.getYear(timestamp)
+    }
+
+    String determineSemester(Timestamp timestamp) {
+        if (timestamp.month >= 0 && timestamp.month <= 5) {
+            return 'Spring'
+        }
+        'Fall'
     }
 
     @SuppressWarnings(['NestedForLoop'])
