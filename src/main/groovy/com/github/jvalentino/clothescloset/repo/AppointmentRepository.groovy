@@ -13,6 +13,7 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian
+            where appointment.waitlist = false
             order by appointment.datetime DESC
         ''')
     List<Appointment> all()
@@ -20,7 +21,8 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
-            where guardian.firstName like ?1 or guardian.lastName like ?1
+            where (guardian.firstName like ?1 or guardian.lastName like ?1)
+            and appointment.waitlist = false
             order by appointment.datetime DESC
         ''')
     List<Appointment> listByNameMatch(String name)
@@ -29,6 +31,7 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
             where appointment.datetime >= ?1 and appointment.datetime < ?2
+            and appointment.waitlist = false
             order by appointment.datetime DESC
         ''')
     List<Appointment> listOnDate(Date startDate, Date endDate)
@@ -37,7 +40,8 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
             where appointment.datetime >= ?1 and appointment.datetime < ?2
-            and guardian.firstName like ?3 or guardian.lastName like ?3
+            and (guardian.firstName like ?3 or guardian.lastName like ?3)
+            and appointment.waitlist = false
             order by appointment.datetime DESC
         ''')
     List<Appointment> listOnDateWithNameMatch(Date startDate, Date endDate, String name)
@@ -75,13 +79,14 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
             where guardian.email = ?1 and appointment.appointmentId != ?2
+            and appointment.waitlist = false
             order by appointment.datetime DESC
         ''')
     List<Appointment> findForGuardian(String email, Long id)
 
     @Query('''
             select distinct appointment from Appointment appointment
-            where appointment.datetime = ?1
+            where appointment.datetime = ?1 and appointment.waitlist = false
         ''')
     List<Appointment> findByDate(Date date)
 
@@ -91,6 +96,7 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
             left join fetch v.person
             left join fetch v.student
             where a.happened = true and a.datetime >= ?1 and a.datetime <= ?2
+            and a.waitlist = false
         ''')
     List<Appointment> findWithVisits(Date startDate, Date endDate)
 
@@ -101,6 +107,7 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
             left join fetch v.person
             left join fetch v.student
             where a.happened = false and a.notified = false and a.datetime >= ?1 and a.datetime <= ?2
+            and a.waitlist = false
         ''')
     List<Appointment> findWithVisitsNeedingNotification(Date startDate, Date endDate)
 
@@ -109,7 +116,7 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
             left join fetch a.visits as v
             left join fetch v.student as s
             where a.semester = ?1 and a.year = ?2
-            and s.studentId in ?3
+            and s.studentId in ?3 and a.waitlist = false
         ''')
     List<Appointment> findWithVisitsByStudentIds(String semester, int year, List<String> studentIds)
 

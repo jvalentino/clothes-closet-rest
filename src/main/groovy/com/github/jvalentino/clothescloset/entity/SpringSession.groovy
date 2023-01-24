@@ -26,4 +26,16 @@ class SpringSession {
     @Column(name = 'principal_name')
     String principalName
 
+    @Column(name = 'CREATION_TIME')
+    Long creationTime
+
+    @Column(name = 'LAST_ACCESS_TIME')
+    Long lastAccessTime
+
+    @Column(name = 'MAX_INACTIVE_INTERVAL')
+    Long maxInactiveInterval
+
+    @Column(name = 'EXPIRY_TIME')
+    Long expiryTime
+
 }

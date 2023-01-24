@@ -239,3 +239,12 @@ ALTER TABLE appointment
 
 UPDATE appointment SET notified = false where notified IS NULL;
 UPDATE appointment SET locale = 'en' where locale IS NULL;
+
+-- changeset liquibase:9
+
+ALTER TABLE appointment
+  ADD waitlist boolean;
+
+UPDATE appointment SET waitlist = false where waitlist IS NULL;
+
+

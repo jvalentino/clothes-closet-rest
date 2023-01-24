@@ -48,6 +48,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.spockframework:spock-core:2.2-groovy-3.0'
+	testImplementation group: 'org.spockframework', name: 'spock-spring', version: '2.2-groovy-3.0'
 	testImplementation 'junit:junit:4.13.2'
 	testImplementation 'cglib:cglib-nodep:3.3.0'
 	testImplementation 'org.objenesis:objenesis:3.3'

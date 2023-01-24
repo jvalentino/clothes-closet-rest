@@ -23,6 +23,8 @@ class MakeAppointmentDto {
 
     String locale = 'en'
 
+    boolean waitlist = false
+
     @NotNull(message = 'guardian cannot be blank')
     @Valid
     Guardian guardian
