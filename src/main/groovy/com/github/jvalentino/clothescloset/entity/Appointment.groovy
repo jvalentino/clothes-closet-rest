@@ -56,7 +56,7 @@ class Appointment {
 
     String locale
 
-    Boolean waitlist
+    Boolean waitlist = false
 
     @OneToMany(mappedBy='appointment', fetch = FetchType.LAZY)
     Set<Visit> visits

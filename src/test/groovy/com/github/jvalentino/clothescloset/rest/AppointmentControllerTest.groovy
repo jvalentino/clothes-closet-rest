@@ -82,7 +82,7 @@ class AppointmentControllerTest extends Specification {
         1 * subject.appointmentRepository.findWithVisitsByStudentIds(
                 "Spring", 2023, ["foxtrot"]) >> []
         1 * subject.guardianRepository.save(appointment.guardian)
-        1 * subject.studentRepository.save(student)
+        1 * subject.studentRepository.save(student) >> student
         1 * subject.appointmentRepository.save(_) >> { Appointment app ->
             assert app.datetime.time == 1682899200000
             assert app.guardian.email == appointment.guardian.email

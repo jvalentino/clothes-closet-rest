@@ -5,6 +5,7 @@ import com.github.jvalentino.clothescloset.dto.AppointmentSearchDto
 import com.github.jvalentino.clothescloset.dto.AppointmentSettingsDto
 import com.github.jvalentino.clothescloset.dto.CalendarBookingDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
+import com.github.jvalentino.clothescloset.dto.MakeAppointmentResultDto
 import com.github.jvalentino.clothescloset.dto.MultiPrintRequestDto
 import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ReportingDto
@@ -104,8 +105,8 @@ class AppointmentController {
     PdfService pdfService
 
     @PostMapping('/appointment/schedule')
-    ResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment, HttpServletRequest request) {
-        ResultDto result = new ResultDto()
+    MakeAppointmentResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment, HttpServletRequest request) {
+        MakeAppointmentResultDto result = new MakeAppointmentResultDto()
 
         // first check that all student Ids are on the list
         this.validateStudentIdsOnList(appointment, result)
@@ -122,21 +123,7 @@ class AppointmentController {
         }
 
         // create a new appointment
-        Appointment app = new Appointment()
-        app.guardian = appointment.guardian
-        app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
-        app.year = DateUtil.getYear(app.datetime)
-        app.happened = false
-        app.notified = false
-        app.createdDateTime = new Timestamp(new Date().time)
-        app.ipAddress = request.getRemoteAddr()
-        app.locale = appointment.locale
-
-        if (app.datetime.month >= 0 && app.datetime.month <= 5) {
-            app.semester = 'Spring'
-        } else {
-            app.semester = 'Fall'
-        }
+        Appointment app = this.generateAppointment(appointment, request)
 
         // now make sure these students have not already had a visit this semester
         this.validateStudentsHaveNotAlreadyBeen(appointment, result, app)
@@ -153,10 +140,12 @@ class AppointmentController {
 
         // handle each student
         for (Student student : appointment.students) {
-            studentRepository.save(student)
+            student = studentRepository.save(student)
+            result.studentIds.add(student.studentId)
         }
 
         app = appointmentRepository.save(app)
+        result.appointmentId = app.appointmentId
 
         // create a visit for each student
         for (Student student : appointment.students) {
@@ -164,7 +153,9 @@ class AppointmentController {
             visit.appointment = app
             visit.student = student
             visit.happened = false
-            visitRepository.save(visit)
+            visit = visitRepository.save(visit)
+
+            result.visitIds.add(visit.visitId)
         }
 
         result
@@ -183,6 +174,27 @@ class AppointmentController {
             result.success = false
             result.codes.add('STUDENT_IDS')
         }
+    }
+
+    Appointment generateAppointment(MakeAppointmentDto appointment, HttpServletRequest request) {
+        Appointment app = new Appointment()
+        app.guardian = appointment.guardian
+        app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
+        app.year = DateUtil.getYear(app.datetime)
+        app.happened = false
+        app.notified = false
+        app.createdDateTime = new Timestamp(new Date().time)
+        app.ipAddress = request.getRemoteAddr()
+        app.locale = appointment.locale
+        app.waitlist = appointment.waitlist
+
+        if (app.datetime.month >= 0 && app.datetime.month <= 5) {
+            app.semester = 'Spring'
+        } else {
+            app.semester = 'Fall'
+        }
+
+        app
     }
 
     @SuppressWarnings(['NestedForLoop'])

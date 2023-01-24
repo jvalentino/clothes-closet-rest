@@ -1,5 +1,7 @@
 package com.github.jvalentino.clothescloset.util
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.entity.SpringSession
 import com.github.jvalentino.clothescloset.repo.SpringSessionRepository
 import org.junit.jupiter.api.extension.ExtendWith
@@ -10,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.web.servlet.MvcResult
 import org.springframework.transaction.annotation.Transactional
 import spock.lang.Specification
 
@@ -46,6 +49,21 @@ abstract class BaseIntg extends Specification {
         springSessionRepository.save(session)
 
         session.sessionId
+    }
+
+    String asJsonString(final Object obj) {
+        try {
+            final ObjectMapper mapper = new ObjectMapper()
+            final String jsonContent = mapper.writeValueAsString(obj)
+            return jsonContent
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    Object toObject(MvcResult response, Class clazz) {
+        String json = response.getResponse().getContentAsString()
+        new ObjectMapper().readValue(json, clazz)
     }
 
 }
