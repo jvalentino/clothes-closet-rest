@@ -318,14 +318,17 @@ class AppointmentController {
     @GetMapping('/appointment/search')
     AppointmentSearchDto searchAppointments(@RequestParam Optional<String> date,
                                             @RequestParam Optional<String> name,
+                                            @RequestParam Optional<Boolean> waiting,
                                             @RequestParam(required = false, defaultValue = 'America/Chicago')
                                             String timeZone) {
         String dateString = date.empty ? null : date.get()
         String nameString = name.empty ? null : name.get()
+        boolean waitlist = waiting.empty ? false : waiting.get()
 
         AppointmentSearchDto result = new AppointmentSearchDto()
         result.name = nameString
         result.date = dateString
+        result.waitlist = waitlist
 
         if (result.date != null) {
             result.startDate = DateUtil.fromYearMonthDay(result.date, timeZone)
@@ -338,14 +341,15 @@ class AppointmentController {
             result.appointments = appointmentRepository.listOnDateWithNameMatch(
                     result.startDate,
                     result.endDate,
-                    "%${result.name}%"
+                    "%${result.name}%",
+                    result.waitlist
             )
         } else if (result.name != null) {
-            result.appointments = appointmentRepository.listByNameMatch("%${result.name}%")
+            result.appointments = appointmentRepository.listByNameMatch("%${result.name}%", result.waitlist)
         } else if (result.date != null) {
-            result.appointments = appointmentRepository.listOnDate(result.startDate, result.endDate)
+            result.appointments = appointmentRepository.listOnDate(result.startDate, result.endDate, result.waitlist)
         } else {
-            result.appointments = appointmentRepository.all()
+            result.appointments = appointmentRepository.all(result.waitlist)
         }
 
         addIsoToAppointments(result.appointments, timeZone)
@@ -370,7 +374,13 @@ class AppointmentController {
 
     void addIsoToAppointments(List<Appointment> appointments, String timeZone) {
         for (Appointment app : appointments) {
-            app.datetimeIso = DateUtil.fromDate(new Date(app.datetime.time), timeZone)
+            if (app.datetime != null) {
+                app.datetimeIso = DateUtil.timestampToIso(app.datetime, timeZone)
+            }
+
+            if (app.createdDateTime != null) {
+                app.createdDateTimeIso = DateUtil.timestampToIso(app.createdDateTime, timeZone)
+            }
         }
     }
 
@@ -388,7 +398,10 @@ class AppointmentController {
     @DeleteMapping('/appointment/cancel')
     ResultDto cancelAppointment(@RequestParam Long id) {
         Appointment appointment = appointmentRepository.findById(id).get()
-        calendarService.deleteEvent(appointment.eventId)
+
+        if (appointment.eventId != null) {
+            calendarService.deleteEvent(appointment.eventId)
+        }
         appointmentRepository.deleteById(id)
 
         new ResultDto()

@@ -41,6 +41,9 @@ class Appointment {
     @Transient
     String datetimeIso
 
+    @Transient
+    String createdDateTimeIso
+
     Boolean happened
 
     @Column(name = 'event_id')

@@ -16,6 +16,7 @@ class AppointmentSearchDto {
     String endDateIso
     Date startDate
     Date endDate
+    Boolean waitlist
     List<Appointment> appointments = []
 
 }

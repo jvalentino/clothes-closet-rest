@@ -13,38 +13,38 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian
-            where appointment.waitlist = false
-            order by appointment.datetime DESC
+            where appointment.waitlist = ?1
+            order by appointment.datetime DESC, appointment.createdDateTime ASC
         ''')
-    List<Appointment> all()
+    List<Appointment> all(boolean waitlist)
 
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
             where (guardian.firstName like ?1 or guardian.lastName like ?1)
-            and appointment.waitlist = false
-            order by appointment.datetime DESC
+            and appointment.waitlist = ?2
+            order by appointment.datetime DESC, appointment.createdDateTime ASC
         ''')
-    List<Appointment> listByNameMatch(String name)
+    List<Appointment> listByNameMatch(String name, boolean waitlist)
 
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
             where appointment.datetime >= ?1 and appointment.datetime < ?2
-            and appointment.waitlist = false
-            order by appointment.datetime DESC
+            and appointment.waitlist = ?3
+            order by appointment.datetime DESC, appointment.createdDateTime ASC
         ''')
-    List<Appointment> listOnDate(Date startDate, Date endDate)
+    List<Appointment> listOnDate(Date startDate, Date endDate, boolean waitlist)
 
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
             where appointment.datetime >= ?1 and appointment.datetime < ?2
             and (guardian.firstName like ?3 or guardian.lastName like ?3)
-            and appointment.waitlist = false
-            order by appointment.datetime DESC
+            and appointment.waitlist = ?4
+            order by appointment.datetime DESC, appointment.createdDateTime ASC
         ''')
-    List<Appointment> listOnDateWithNameMatch(Date startDate, Date endDate, String name)
+    List<Appointment> listOnDateWithNameMatch(Date startDate, Date endDate, String name, boolean waitlist)
 
     @Query('''
             select distinct appointment from Appointment appointment

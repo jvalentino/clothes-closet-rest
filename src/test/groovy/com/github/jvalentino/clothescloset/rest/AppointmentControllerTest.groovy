@@ -149,6 +149,7 @@ class AppointmentControllerTest extends Specification {
         given:
         Optional<String> date = GroovyMock()
         Optional<String> name = GroovyMock()
+        Optional<String> waiting = GroovyMock()
         String timeZone = 'GMT'
 
         and:
@@ -156,12 +157,13 @@ class AppointmentControllerTest extends Specification {
                 new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
         ]
         when:
-        AppointmentSearchDto result = subject.searchAppointments(date, name, timeZone)
+        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone)
 
         then:
         1 * date.empty >> true
         1 * name.empty >> true
-        1 * subject.appointmentRepository.all() >> appointments
+        1 * waiting.empty >> true
+        1 * subject.appointmentRepository.all(false) >> appointments
 
         and:
         result.name == null
@@ -177,6 +179,7 @@ class AppointmentControllerTest extends Specification {
         given:
         Optional<String> date = GroovyMock()
         Optional<String> name = GroovyMock()
+        Optional<String> waiting = GroovyMock()
         String timeZone = 'GMT'
 
         and:
@@ -184,9 +187,10 @@ class AppointmentControllerTest extends Specification {
                 new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
         ]
         when:
-        AppointmentSearchDto result = subject.searchAppointments(date, name, timeZone)
+        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone)
 
         then:
+        1 * waiting.empty >> true
         1 * date.empty >> false
         1 * date.get() >> '2023-05-01'
         1 * name.empty >> false
@@ -194,9 +198,11 @@ class AppointmentControllerTest extends Specification {
         1 * subject.appointmentRepository.listOnDateWithNameMatch(
                 _,
                 _,
-                "%alpha%") >> appointments
+                "%alpha%",
+                false) >> appointments
 
         and:
+        result.waitlist == false
         result.name == 'alpha'
         result.date == '2023-05-01'
         result.endDateIso == '2023-05-02T00:00:00.000+0000'
@@ -209,6 +215,7 @@ class AppointmentControllerTest extends Specification {
         given:
         Optional<String> date = GroovyMock()
         Optional<String> name = GroovyMock()
+        Optional<String> waiting = GroovyMock()
         String timeZone = 'GMT'
 
         and:
@@ -216,13 +223,14 @@ class AppointmentControllerTest extends Specification {
                 new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
         ]
         when:
-        AppointmentSearchDto result = subject.searchAppointments(date, name, timeZone)
+        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone)
 
         then:
         1 * date.empty >> true
         1 * name.empty >> false
         1 * name.get() >> 'alpha'
-        1 * subject.appointmentRepository.listByNameMatch("%alpha%") >> appointments
+        1 * waiting.empty >> true
+        1 * subject.appointmentRepository.listByNameMatch("%alpha%", false) >> appointments
 
         and:
         result.name == 'alpha'
@@ -231,12 +239,14 @@ class AppointmentControllerTest extends Specification {
         result.startDateIso == null
         result.appointments.size() == 1
         result.appointments.get(0).datetimeIso == '2023-05-01T00:00:00.000+0000'
+        result.waitlist == false
     }
 
     def "test searchAppointments when date"() {
         given:
         Optional<String> date = GroovyMock()
         Optional<String> name = GroovyMock()
+        Optional<String> waiting = GroovyMock()
         String timeZone = 'GMT'
 
         and:
@@ -244,13 +254,13 @@ class AppointmentControllerTest extends Specification {
                 new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
         ]
         when:
-        AppointmentSearchDto result = subject.searchAppointments(date, name, timeZone)
+        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone)
 
         then:
         1 * date.empty >> false
         1 * date.get() >> '2023-05-01'
         1 * name.empty >> true
-        1 * subject.appointmentRepository.listOnDate(_, _) >> appointments
+        1 * subject.appointmentRepository.listOnDate(_, _, false) >> appointments
 
         and:
         result.name == null
@@ -259,6 +269,7 @@ class AppointmentControllerTest extends Specification {
         result.startDateIso == '2023-05-01T00:00:00.000+0000'
         result.appointments.size() == 1
         result.appointments.get(0).datetimeIso == '2023-05-01T00:00:00.000+0000'
+        result.waitlist == false
     }
 
     def "test getAppointmentDetails when no result"() {

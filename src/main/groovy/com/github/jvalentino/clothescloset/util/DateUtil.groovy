@@ -99,4 +99,8 @@ class DateUtil {
         dateFormat.format(date)
     }
 
+    static String timestampToIso(Timestamp timestamp, String timeZone=GMT) {
+        DateUtil.fromDate(new Date(timestamp.time), timeZone)
+    }
+
 }
