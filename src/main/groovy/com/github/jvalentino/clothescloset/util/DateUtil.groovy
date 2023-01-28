@@ -13,7 +13,13 @@ import java.text.SimpleDateFormat
  * @author john.valentino
  */
 @CompileDynamic
-@SuppressWarnings(['UnnecessaryGString', 'UnnecessarySetter', 'UnnecessaryGetter', 'NoJavaUtilDate'])
+@SuppressWarnings([
+        'UnnecessaryGString',
+        'UnnecessarySetter',
+        'UnnecessaryGetter',
+        'NoJavaUtilDate',
+        'DuplicateNumberLiteral',
+])
 class DateUtil {
 
     static final String ISO = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
@@ -35,8 +41,15 @@ class DateUtil {
         dateFormat.format(date)
     }
 
-    static int getYear(Date date) {
+    static int getYear(Date date, String timeZone=GMT) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy", Locale.ENGLISH)
+        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone))
+        dateFormat.format(date).toInteger()
+    }
+
+    static int getMonth(Date date, String timeZone=GMT) {
+        DateFormat dateFormat = new SimpleDateFormat("MM", Locale.ENGLISH)
+        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone))
         dateFormat.format(date).toInteger()
     }
 
@@ -92,6 +105,12 @@ class DateUtil {
         dateFormat.format(date)
     }
 
+    static String dateToFriendlyMonthDayYear(Date date, String timeZone=GMT) {
+        DateFormat dateFormat = new SimpleDateFormat(MM_DD_YYYY, Locale.ENGLISH)
+        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone))
+        dateFormat.format(date)
+    }
+
     static String timestampToFriendlyTimeAMPM(Timestamp timestamp, String timeZone=GMT) {
         Date date = new Date(timestamp.time)
         DateFormat dateFormat = new SimpleDateFormat(TIME, Locale.ENGLISH)
@@ -101,6 +120,30 @@ class DateUtil {
 
     static String timestampToIso(Timestamp timestamp, String timeZone=GMT) {
         DateUtil.fromDate(new Date(timestamp.time), timeZone)
+    }
+
+    static Date findSemesterStart(Date date, String timeZone=GMT) {
+        int year = DateUtil.getYear(date, timeZone)
+        int month = DateUtil.getMonth(date, timeZone)
+
+        int startMonth = 8
+        if (month >= 1 && month <= 6) {
+            startMonth = 1
+        }
+
+        DateUtil.fromYearMonthDay("${year}-${startMonth}-01", timeZone)
+    }
+
+    static Date findSemesterEnd(Date date, String timeZone=GMT) {
+        int year = DateUtil.getYear(date, timeZone)
+        int month = DateUtil.getMonth(date, timeZone)
+
+        int endMonth = 12
+        if (month >= 1 && month <= 6) {
+            endMonth = 6
+        }
+
+        DateUtil.fromYearMonthDay("${year}-${endMonth}-31", timeZone)
     }
 
 }

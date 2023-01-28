@@ -30,6 +30,7 @@ import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
 import com.github.jvalentino.clothescloset.service.PdfService
+import com.github.jvalentino.clothescloset.service.ReportingService
 import com.github.jvalentino.clothescloset.util.DateUtil
 import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
@@ -104,6 +105,9 @@ class AppointmentController {
 
     @Autowired
     PdfService pdfService
+
+    @Autowired
+    ReportingService reportingService
 
     @PostMapping('/appointment/schedule')
     MakeAppointmentResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment, HttpServletRequest request) {
@@ -511,36 +515,13 @@ class AppointmentController {
 
     @GetMapping('/appointment/report')
     @SuppressWarnings(['NestedForLoop', 'UnnecessaryObjectReferences'])
-    ReportingDto report(@RequestParam String start, @RequestParam String end) {
-        ReportingDto result = new ReportingDto(start:start, end:end)
-
+    ReportingDto report(@RequestParam String start, @RequestParam String end,
+                        @RequestParam(required = false, defaultValue = 'America/Chicago')
+                        String timeZone) {
         Date startDate = DateUtil.fromYearMonthDay(start)
         Date endDate = DateUtil.fromYearMonthDay(end)
 
-        List<Appointment> appointments = appointmentRepository.findWithVisits(startDate, endDate)
-        for (Appointment appointment : appointments) {
-            result.appointents++
-
-            for (Visit visit : appointment.visits) {
-                if (visit.student != null) {
-                    result.students++
-                } else {
-                    result.persons++
-                }
-
-                result.totalPeople++
-
-                result.socks += visit.socks
-                result.underwear += visit.underwear
-                result.shoes += visit.shoes
-                result.coats += visit.coats
-                result.backpacks += visit.backpacks
-                result.misc += visit.misc
-
-                result.total += visit.socks + visit.underwear + visit.shoes +
-                        visit.coats + visit.backpacks + visit.misc
-            }
-        }
+        ReportingDto result = reportingService.generateReport(startDate, endDate, timeZone)
 
         result
     }
