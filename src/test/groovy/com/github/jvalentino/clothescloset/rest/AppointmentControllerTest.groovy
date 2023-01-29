@@ -510,5 +510,25 @@ class AppointmentControllerTest extends Specification {
         result.previous.get(1).datetimeIso == '2023-01-01T00:00:00.000+0000'
     }
 
+    def "test noshow"() {
+        given:
+        Long id = 1L
+        Optional<Appointment> optional = GroovyMock()
+        Appointment appointment = new Appointment()
+
+        when:
+        ResultDto result = subject.noshow(id)
+
+        then:
+        1 * subject.appointmentRepository.findById(id) >> optional
+        1 * optional.get() >> appointment
+        1 * subject.appointmentRepository.save(appointment)
+
+        and:
+        result.success
+        appointment.noshow == true
+        appointment.happened == false
+    }
+
 
 }

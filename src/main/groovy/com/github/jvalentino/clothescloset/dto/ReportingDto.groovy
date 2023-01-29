@@ -24,6 +24,6 @@ class ReportingDto {
     long persons = 0
     long totalPeople = 0
 
-    long appointents = 0
+    long appointments = 0
 
 }

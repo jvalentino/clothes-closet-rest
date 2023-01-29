@@ -411,6 +411,15 @@ class AppointmentController {
         new ResultDto()
     }
 
+    @GetMapping('/appointment/noshow')
+    ResultDto noshow(@RequestParam Long id) {
+        Appointment appointment = appointmentRepository.findById(id).get()
+        appointment.noshow = true
+        appointment.happened = false
+        appointmentRepository.save(appointment)
+        new ResultDto()
+    }
+
     @PostMapping('/appointment/update')
     ResultDto updateAppointment(@Valid @RequestBody UpdateAppointmentDto dto) {
         Appointment appointment = appointmentRepository.getWithGuardian(dto.appointmentId).first()

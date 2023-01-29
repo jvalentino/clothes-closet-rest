@@ -30,7 +30,7 @@ class ReportingService {
 
         List<Appointment> appointments = appointmentRepository.findWithVisits(startDate, endDate)
         for (Appointment appointment : appointments) {
-            result.appointents++
+            result.appointments++
 
             for (Visit visit : appointment.visits) {
                 if (visit.student != null) {

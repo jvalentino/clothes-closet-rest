@@ -86,3 +86,18 @@ check {
 
 // CODENARC!
 codenarcTest.enabled = false
+
+task codenarcConsoleReport {
+	doLast {
+		println file("${codenarc.reportsDir}/main.txt").text
+	}
+}
+
+codenarcMain {
+	finalizedBy codenarcConsoleReport
+	reports {
+		text.enabled = true
+		html.enabled = true
+	}
+}
+

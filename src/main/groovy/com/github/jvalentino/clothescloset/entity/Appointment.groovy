@@ -61,6 +61,8 @@ class Appointment {
 
     Boolean waitlist = false
 
+    Boolean noshow = false
+
     @OneToMany(mappedBy='appointment', fetch = FetchType.LAZY)
     Set<Visit> visits
 

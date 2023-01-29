@@ -247,4 +247,9 @@ ALTER TABLE appointment
 
 UPDATE appointment SET waitlist = false where waitlist IS NULL;
 
+-- changeset liquibase:10
 
+ALTER TABLE appointment
+  ADD noshow boolean;
+
+UPDATE appointment SET noshow = false where noshow IS NULL;
