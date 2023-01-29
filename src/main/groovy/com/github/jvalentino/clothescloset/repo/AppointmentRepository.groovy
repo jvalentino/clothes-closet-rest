@@ -39,6 +39,17 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
+            where appointment.datetime < ?1
+                and appointment.waitlist = false
+                and appointment.happened = false
+                and appointment.noshow = false
+            order by appointment.datetime ASC, appointment.createdDateTime ASC
+        ''')
+    List<Appointment> listRequireAttention(Date currentDate)
+
+    @Query('''
+            select distinct appointment from Appointment appointment
+            left join fetch appointment.guardian as guardian
             where appointment.datetime >= ?1 and appointment.datetime < ?2
             and (guardian.firstName like ?3 or guardian.lastName like ?3)
             and appointment.waitlist = ?4
@@ -119,5 +130,8 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
             and s.studentId in ?3 and a.waitlist = false
         ''')
     List<Appointment> findWithVisitsByStudentIds(String semester, int year, List<String> studentIds)
+
+    @Query('select count(a) from Appointment a where a.waitlist = true')
+    Long countOnWaitList()
 
 }

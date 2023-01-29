@@ -1,5 +1,6 @@
 package com.github.jvalentino.clothescloset.util
 
+import com.github.jvalentino.clothescloset.entity.Appointment
 import com.google.api.client.util.DateTime
 import com.google.api.services.calendar.model.EventDateTime
 import groovy.transform.CompileDynamic
@@ -134,6 +135,15 @@ class DateUtil {
         DateUtil.fromYearMonthDay("${year}-${startMonth}-01", timeZone)
     }
 
+    static String findSemesterForDate(Date date, String timeZone=GMT) {
+        int month = DateUtil.getMonth(date, timeZone)
+
+        if (month >= 1 && month <= 6) {
+            return 'Spring'
+        }
+        'Fall'
+    }
+
     static Date findSemesterEnd(Date date, String timeZone=GMT) {
         int year = DateUtil.getYear(date, timeZone)
         int month = DateUtil.getMonth(date, timeZone)
@@ -144,6 +154,18 @@ class DateUtil {
         }
 
         DateUtil.fromYearMonthDay("${year}-${endMonth}-31", timeZone)
+    }
+
+    static void addIsoToAppointments(List<Appointment> appointments, String timeZone) {
+        for (Appointment app : appointments) {
+            if (app.datetime != null) {
+                app.datetimeIso = DateUtil.timestampToIso(app.datetime, timeZone)
+            }
+
+            if (app.createdDateTime != null) {
+                app.createdDateTimeIso = DateUtil.timestampToIso(app.createdDateTime, timeZone)
+            }
+        }
     }
 
 }

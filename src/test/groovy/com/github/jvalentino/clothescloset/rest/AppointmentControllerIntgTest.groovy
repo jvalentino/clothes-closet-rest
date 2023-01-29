@@ -1,61 +1,24 @@
 package com.github.jvalentino.clothescloset.rest
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentResultDto
 import com.github.jvalentino.clothescloset.dto.MoveFromWaitListDto
-import com.github.jvalentino.clothescloset.dto.ResultDto
 import com.github.jvalentino.clothescloset.entity.AcceptedId
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Guardian
 import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
-import com.github.jvalentino.clothescloset.repo.AcceptedIdRepository
-import com.github.jvalentino.clothescloset.repo.AppointmentRepository
-import com.github.jvalentino.clothescloset.repo.GuardianRepository
-import com.github.jvalentino.clothescloset.repo.StudentRepository
-import com.github.jvalentino.clothescloset.repo.VisitRepository
-import com.github.jvalentino.clothescloset.service.CalendarService
+
 import com.github.jvalentino.clothescloset.util.BaseIntg
 import com.github.jvalentino.clothescloset.util.DateUtil
-import org.spockframework.spring.SpringBean
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
-
-import javax.persistence.EntityManager
-import javax.persistence.PersistenceContext
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class AppointmentControllerIntgTest extends BaseIntg {
-
-    @Autowired
-    MockMvc mvc
-
-    @SpringBean
-    CalendarService calendarService = Mock()
-
-    @Autowired
-    AcceptedIdRepository acceptedIdRepository
-
-    @Autowired
-    AppointmentRepository appointmentRepository
-
-    @Autowired
-    GuardianRepository guardianRepository
-
-    @Autowired
-    StudentRepository studentRepository
-
-    @Autowired
-    VisitRepository visitRepository
-
-    @PersistenceContext
-    private EntityManager entityManager
 
     def setup() {
 
@@ -191,39 +154,7 @@ class AppointmentControllerIntgTest extends BaseIntg {
         String sessionId = this.makeSession()
 
         and: 'We have an existing appointment'
-        Guardian guardian = new Guardian()
-        guardian.with {
-            firstName = 'alpha'
-            lastName = 'bravo'
-            email = 'alpha@bravo.com'
-            phoneNumber = '+12223334444'
-            phoneTypeLabel = 'mobile'
-
-        }
-        guardian = guardianRepository.save(guardian)
-
-        Student student = new Student()
-        student.with {
-            studentId = 'echo'
-            grade = '1'
-            gender = 'Female'
-            school = 'Foxtrot'
-        }
-        student = studentRepository.save(student)
-
-        Appointment appointment = new Appointment(guardian: guardian)
-        appointment.waitlist = true
-        appointment.datetime = null
-        appointment.eventId = null
-        appointment = appointmentRepository.save(appointment)
-
-        Visit visit = new Visit()
-        visit.student = student
-        visit.appointment = appointment
-        visit = visitRepository.save(visit)
-
-        appointment.visits = [visit]
-        appointment = appointmentRepository.save(appointment)
+        Appointment appointment = this.makeAndStoreAppointment(null, true)
 
         and:
         MoveFromWaitListDto input = new MoveFromWaitListDto()
@@ -248,8 +179,8 @@ class AppointmentControllerIntgTest extends BaseIntg {
 
         then:
         1 * calendarService.bookSlot(_) >> { MakeAppointmentDto dto ->
-            assert dto.guardian.email == guardian.email
-            assert dto.students.first().studentId == student.studentId
+            assert dto.guardian.email == appointment.guardian.email
+            assert dto.students.first().studentId == appointment.visits.first().student.studentId
             assert dto.timeZone == input.timeZone
             assert dto.datetime == input.datetime
 

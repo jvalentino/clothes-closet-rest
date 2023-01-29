@@ -356,7 +356,7 @@ class AppointmentController {
             result.appointments = appointmentRepository.all(result.waitlist)
         }
 
-        addIsoToAppointments(result.appointments, timeZone)
+        DateUtil.addIsoToAppointments(result.appointments, timeZone)
 
         result
     }
@@ -371,21 +371,9 @@ class AppointmentController {
             return new Appointment()
         }
 
-        addIsoToAppointments(results, timeZone)
+        DateUtil.addIsoToAppointments(results, timeZone)
 
         results.first()
-    }
-
-    void addIsoToAppointments(List<Appointment> appointments, String timeZone) {
-        for (Appointment app : appointments) {
-            if (app.datetime != null) {
-                app.datetimeIso = DateUtil.timestampToIso(app.datetime, timeZone)
-            }
-
-            if (app.createdDateTime != null) {
-                app.createdDateTimeIso = DateUtil.timestampToIso(app.createdDateTime, timeZone)
-            }
-        }
     }
 
     @PostMapping('/appointment/person')
@@ -461,7 +449,7 @@ class AppointmentController {
         List<PrintAppointmentDto> results = []
 
         List<Appointment> appointments = appointmentRepository.getAppointmentDetailsWithGuardianAppts(input.ids)
-        addIsoToAppointments(appointments, input.timeZone)
+        DateUtil.addIsoToAppointments(appointments, input.timeZone)
 
         List<Settings> settings = settingsRepository.retrieveAll()
 
@@ -481,7 +469,7 @@ class AppointmentController {
             } else {
                 result.previous = appointment.guardian.appointments.toList()
                 result.firstTime = false
-                addIsoToAppointments(result.previous, input.timeZone)
+                DateUtil.addIsoToAppointments(result.previous, input.timeZone)
                 result.lastAppointmentDateIso = result.previous.get(1) .datetimeIso
             }
 
