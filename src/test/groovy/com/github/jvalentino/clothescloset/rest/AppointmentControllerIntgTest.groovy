@@ -26,32 +26,10 @@ class AppointmentControllerIntgTest extends BaseIntg {
 
     def "test schedule"() {
         given: 'A valid appointment payload'
-        Guardian guardian = new Guardian()
-        guardian.with {
-            email = 'alpha@bravo.com'
-            firstName = 'Charlie'
-            lastName = 'Delta'
-            phoneNumber = '+12223334444'
-            phoneTypeLabel = 'mobile'
-        }
-
-        Student student = new Student()
-        student.with {
-            studentId = 'echo'
-            grade = '1'
-            gender = 'Female'
-            school = 'Foxtrot'
-        }
-
-        MakeAppointmentDto input = new MakeAppointmentDto()
-        input.with {
-            datetime = '2022-01-02T00:00:00.000+0000'
-            timeZone = 'GMT'
-            students = [student]
-        }
-        input.guardian = guardian
+        MakeAppointmentDto input = this.generateAppointment()
 
         and: 'That the student is on the approved list'
+        Student student = input.students.first()
         acceptedIdRepository.save(new AcceptedId(studentId:student.studentId))
 
         when: 'POST to /appointment/schedule'
@@ -201,9 +179,129 @@ class AppointmentControllerIntgTest extends BaseIntg {
         foundAppointment.year == 2021
     }
 
+    def "test schedule when not on accepted list"() {
+        given: 'A valid appointment payload'
+        MakeAppointmentDto input = this.generateAppointment()
+
+        when: 'POST to /appointment/schedule'
+        MakeAppointmentResultDto result = this.scheduleAppointment(input)
+
+        then: 'Result POST is NOT successful'
+        0 * calendarService.bookSlot(_)
+        result.success == false
+        result.messages == [
+                'echo'
+        ]
+        result.codes == [
+                'STUDENT_IDS'
+        ]
+    }
+
+    def "test schedule when date/time booked"() {
+        given: 'A valid appointment payload'
+        MakeAppointmentDto input = this.generateAppointment()
+
+        and: 'That the student is on the approved list'
+        acceptedIdRepository.save(new AcceptedId(studentId:input.students.first().studentId))
+
+        and: 'an appointment already exists at that time'
+        appointmentRepository.save(new Appointment(datetime:DateUtil.isoToTimestamp('2022-01-02T00:00:00.000+0000')))
+
+        when: 'POST to /appointment/schedule'
+        MakeAppointmentResultDto result = this.scheduleAppointment(input)
+
+        then: 'Result POST is NOT successful'
+        0 * calendarService.bookSlot(_)
+        result.success == false
+        result.messages == [
+                'Already booked'
+        ]
+        result.codes == [
+                'BOOKED'
+        ]
+    }
+
+    def "test schedule when already been"() {
+        given: 'A valid appointment payload'
+        MakeAppointmentDto input = this.generateAppointment()
+
+        and: 'That the student is on the approved list'
+        acceptedIdRepository.save(new AcceptedId(studentId:input.students.first().studentId))
+
+        and:
+        this.makeAndStoreAppointment('2022-01-05T00:30:00.000+0000', false)
+
+        when: 'POST to /appointment/schedule'
+        MakeAppointmentResultDto result = this.scheduleAppointment(input)
+
+        then: 'Result POST is NOT successful'
+        0 * calendarService.bookSlot(_)
+        result.success == false
+        result.messages == [
+                'echo 2022-01-05T00:30:00.000+0000'
+        ]
+        result.codes == [
+                'ALREADY_BEEN'
+        ]
+    }
+
+    def "test schedule when already been but admin override"() {
+        given: 'A valid appointment payload'
+        MakeAppointmentDto input = this.generateAppointment()
+
+        and: 'That the student is on the approved list'
+        acceptedIdRepository.save(new AcceptedId(studentId:input.students.first().studentId))
+
+        and:
+        this.makeAndStoreAppointment('2022-01-05T00:30:00.000+0000', false)
+
+        and:
+        String sessionId = this.makeSession()
+
+        when: 'POST to /appointment/schedule'
+        MakeAppointmentResultDto result = this.scheduleAppointment(
+                input,
+                '/appointment/admin/schedule',
+                sessionId)
+
+        then: 'Result POST is NOT successful'
+        1 * calendarService.bookSlot(_) >> 'event-id'
+        result.success == true
+
+    }
+
     //
 
-    private generateAppointmentForWaitlist() {
+    private MakeAppointmentDto generateAppointment() {
+        Guardian guardian = new Guardian()
+        guardian.with {
+            email = 'alpha@bravo.com'
+            firstName = 'Charlie'
+            lastName = 'Delta'
+            phoneNumber = '+12223334444'
+            phoneTypeLabel = 'mobile'
+        }
+
+        Student student = new Student()
+        student.with {
+            studentId = 'echo'
+            grade = '1'
+            gender = 'Female'
+            school = 'Foxtrot'
+        }
+
+        MakeAppointmentDto input = new MakeAppointmentDto()
+        input.with {
+            datetime = '2022-01-02T00:00:00.000+0000'
+            timeZone = 'GMT'
+            students = [student]
+        }
+        input.guardian = guardian
+
+        input
+    }
+
+    private MakeAppointmentDto generateAppointmentForWaitlist() {
         Guardian guardian = new Guardian()
         guardian.with {
             email = 'alpha@bravo.com'
@@ -234,9 +332,12 @@ class AppointmentControllerIntgTest extends BaseIntg {
         input
     }
 
-    private MakeAppointmentResultDto scheduleAppointment(MakeAppointmentDto input) {
+    private MakeAppointmentResultDto scheduleAppointment(MakeAppointmentDto input,
+                                                         String endpoint='/appointment/schedule',
+                                                         String sessionId='not-used') {
         MvcResult response = mvc.perform(
-                post("/appointment/schedule")
+                post(endpoint)
+                        .header('x-auth-token', sessionId)
                         .content(this.asJsonString(input))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

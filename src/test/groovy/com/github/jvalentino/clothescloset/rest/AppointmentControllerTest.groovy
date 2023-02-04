@@ -20,6 +20,7 @@ import com.github.jvalentino.clothescloset.repo.PersonRepository
 import com.github.jvalentino.clothescloset.repo.SettingsRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
+import com.github.jvalentino.clothescloset.service.AppointmentService
 import com.github.jvalentino.clothescloset.service.CalendarService
 import com.github.jvalentino.clothescloset.util.DateUtil
 import spock.lang.Specification
@@ -42,107 +43,7 @@ class AppointmentControllerTest extends Specification {
         subject.personRepository = Mock(PersonRepository)
         subject.settingsRepository = Mock(SettingsRepository)
         subject.acceptedIdRepository = Mock(AcceptedIdRepository)
-    }
-
-    def "test schedule"() {
-        given:
-        MakeAppointmentDto appointment = new MakeAppointmentDto()
-        appointment.datetime = '2023-05-01T00:00:00.000+0000'
-        appointment.locale = 'fr'
-
-        appointment.guardian = new Guardian()
-        appointment.guardian.with {
-            email = "alpha"
-            firstName = "bravo"
-            lastName = "charlie"
-            phoneNumber = "delta"
-            phoneTypeLabel = "echo"
-        }
-
-        Student student = new Student()
-        student.with {
-            studentId = "foxtrot"
-            school = "golf"
-            gender = "hotel"
-            grade = "india"
-        }
-        appointment.students = [student]
-
-        and:
-        HttpServletRequest request = GroovyMock()
-
-        when:
-        ResultDto result = subject.schedule(appointment, request)
-
-        then:
-        1 * request.getRemoteAddr() >> '0.0.0.1'
-        1 * subject.acceptedIdRepository.existsById(student.studentId) >> true
-        1 * subject.appointmentRepository.findByDate(
-                DateUtil.toDate(appointment.datetime, appointment.timeZone)) >> []
-        1 * subject.appointmentRepository.findWithVisitsByStudentIds(
-                "Spring", 2023, ["foxtrot"]) >> []
-        1 * subject.guardianRepository.save(appointment.guardian)
-        1 * subject.studentRepository.save(student) >> student
-        1 * subject.appointmentRepository.save(_) >> { Appointment app ->
-            assert app.datetime.time == 1682899200000
-            assert app.guardian.email == appointment.guardian.email
-            assert app.year == 2023
-            assert app.semester == "Spring"
-            assert app.happened == false
-            assert app.notified == false
-            assert app.createdDateTime != null
-            assert app.ipAddress == '0.0.0.1'
-            assert app.locale == 'fr'
-
-            return app
-        }
-        1 * subject.visitRepository.save(_) >> { Visit visit ->
-            assert visit.appointment.guardian.email == appointment.guardian.email
-            assert visit.student.studentId == student.studentId
-            assert visit.happened == false
-
-            return visit
-        }
-        1 * subject.calendarService.bookSlot(appointment)
-
-        and:
-        result.success == true
-    }
-
-    def "test schedule when student not found"() {
-        given:
-        MakeAppointmentDto appointment = new MakeAppointmentDto()
-        appointment.datetime = '2023-05-01T00:00:00.000+0000'
-
-        appointment.guardian = new Guardian()
-        appointment.guardian.with {
-            email = "alpha"
-            firstName = "bravo"
-            lastName = "charlie"
-            phoneNumber = "delta"
-            phoneTypeLabel = "echo"
-        }
-
-        Student student = new Student()
-        student.with {
-            studentId = "foxtrot"
-            school = "golf"
-            gender = "hotel"
-            grade = "india"
-        }
-        appointment.students = [student]
-
-        and:
-        HttpServletRequest request = GroovyMock()
-
-        when:
-        ResultDto result = subject.schedule(appointment, request)
-
-        then:
-        1 * subject.acceptedIdRepository.existsById(student.studentId) >> false
-        0 * subject.guardianRepository.save(appointment.guardian)
-        result.success == false
-
+        subject.appointmentService = Mock(AppointmentService)
     }
 
     def "test searchAppointments when no parameters"() {

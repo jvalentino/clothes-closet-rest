@@ -135,6 +135,8 @@ abstract class BaseIntg extends Specification {
         appointment.happened = happened
         appointment.waitlist = waitlist
         appointment.noshow = noshow
+        appointment.year = datetimeIso == null ? null : DateUtil.getYear(DateUtil.toDate(datetimeIso))
+        appointment.semester = datetimeIso == null ? null : DateUtil.determineSemester(DateUtil.isoToTimestamp(datetimeIso))
         appointment.datetime = datetimeIso == null ? null : DateUtil.isoToTimestamp(datetimeIso)
         appointment.eventId = eventId
         appointment = appointmentRepository.save(appointment)

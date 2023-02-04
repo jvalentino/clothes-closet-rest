@@ -15,7 +15,6 @@ import com.github.jvalentino.clothescloset.dto.UpdateAppointmentDto
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Person
 import com.github.jvalentino.clothescloset.entity.Settings
-import com.github.jvalentino.clothescloset.entity.Student
 import com.github.jvalentino.clothescloset.entity.Visit
 import com.github.jvalentino.clothescloset.repo.AcceptedIdRepository
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
@@ -48,7 +47,6 @@ import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
-import java.sql.Timestamp
 
 /**
  * REST endpoint for dealing wth appointments
@@ -115,61 +113,13 @@ class AppointmentController {
 
     @PostMapping('/appointment/schedule')
     MakeAppointmentResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment, HttpServletRequest request) {
-        MakeAppointmentResultDto result = new MakeAppointmentResultDto()
+        appointmentService.schedule(appointment, request)
+    }
 
-        // first check that all student Ids are on the list
-        this.validateStudentIdsOnList(appointment, result)
-
-        if (result.messages.size() != 0) {
-            return result
-        }
-
-        // then validate this this time slot is not already booked (if not going onto the wait list)
-        List<Appointment> matches = this.findAlreadyBookedSlots(appointment)
-
-        if (matches.size() != 0) {
-            return new ResultDto(success:false, messages:['Already booked'], codes:['BOOKED'])
-        }
-
-        // create a new appointment
-        Appointment app = this.generateAppointment(appointment, request)
-
-        // now make sure these students have not already had a visit this semester
-        this.validateStudentsHaveNotAlreadyBeen(appointment, result, app)
-        if (result.messages.size() != 0) {
-            return result
-        }
-
-        // book this time on the calendar if not on the wait list
-        if (!appointment.waitlist) {
-            String eventId = calendarService.bookSlot(appointment)
-            app.eventId = eventId
-        }
-
-        // handle the guardian
-        guardianRepository.save(appointment.guardian)
-
-        // handle each student
-        for (Student student : appointment.students) {
-            student = studentRepository.save(student)
-            result.studentIds.add(student.studentId)
-        }
-
-        app = appointmentRepository.save(app)
-        result.appointmentId = app.appointmentId
-
-        // create a visit for each student
-        for (Student student : appointment.students) {
-            Visit visit = new Visit()
-            visit.appointment = app
-            visit.student = student
-            visit.happened = false
-            visit = visitRepository.save(visit)
-
-            result.visitIds.add(visit.visitId)
-        }
-
-        result
+    @PostMapping('/appointment/admin/schedule')
+    MakeAppointmentResultDto adminSchedule(@Valid @RequestBody MakeAppointmentDto appointment,
+                                           HttpServletRequest request) {
+        appointmentService.schedule(appointment, request, true)
     }
 
     @Deprecated
@@ -185,79 +135,6 @@ class AppointmentController {
         ResultDto result = new ResultDto()
         appointmentService.rescheduleAppointment(input.appointmentId, input.datetime, input.timeZone)
         result
-    }
-
-    void validateStudentIdsOnList(MakeAppointmentDto appointment, ResultDto result) {
-        for (Student student : appointment.students) {
-            boolean found = acceptedIdRepository.existsById(student.studentId)
-
-            if (!found) {
-                result.messages.add(student.studentId)
-            }
-        }
-
-        if (result.messages.size() != 0) {
-            result.success = false
-            result.codes.add('STUDENT_IDS')
-        }
-    }
-
-    List<Appointment> findAlreadyBookedSlots(MakeAppointmentDto appointment) {
-        // if ths is for the waitlist, there is no time slot
-        if (appointment.waitlist) {
-            return []
-        }
-        List<Appointment> matches = appointmentRepository.findByDate(
-                DateUtil.toDate(appointment.datetime, appointment.timeZone))
-        matches
-    }
-
-    Appointment generateAppointment(MakeAppointmentDto appointment, HttpServletRequest request) {
-        Appointment app = new Appointment()
-        app.guardian = appointment.guardian
-        app.happened = false
-        app.notified = false
-        app.createdDateTime = new Timestamp(appointment.currentDate.time)
-        app.ipAddress = request.getRemoteAddr()
-        app.locale = appointment.locale
-        app.waitlist = appointment.waitlist
-
-        if (appointment.waitlist) {
-            app.datetime = null
-            app.year = DateUtil.determineYear(app.createdDateTime)
-            app.semester = DateUtil.determineSemester(app.createdDateTime)
-        } else {
-            app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
-            app.year = DateUtil.determineYear(app.datetime)
-            app.semester = DateUtil.determineSemester(app.datetime)
-        }
-
-        app
-    }
-
-    @SuppressWarnings(['NestedForLoop'])
-    void validateStudentsHaveNotAlreadyBeen(MakeAppointmentDto appointment, ResultDto result,
-                                            Appointment app) {
-        List<String> studentIds = []
-        for (Student student : appointment.students) {
-            studentIds.add(student.studentId)
-        }
-        List<Appointment> prevAppointments = appointmentRepository.findWithVisitsByStudentIds(
-                app.semester, app.year, studentIds
-        )
-
-        if (prevAppointments.size() != 0) {
-            result.success = false
-            result.codes = ['ALREADY_BEEN']
-            for (Appointment a : prevAppointments) {
-                for (Visit v : a.visits) {
-                    if (studentIds.contains(v.student.studentId)) {
-                        result.messages.add(v.student.studentId + ' ' +
-                                DateUtil.fromDate(new Date(a.datetime.time), appointment.timeZone))
-                    }
-                }
-            }
-        }
     }
 
     @GetMapping('/appointment/settings')
