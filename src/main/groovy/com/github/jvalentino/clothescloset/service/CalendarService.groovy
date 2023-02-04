@@ -279,7 +279,11 @@ class CalendarService {
             return
         }
         Calendar service = this.generateService()
-        service.events().delete(GOOGLE_CAL_ID, eventId).execute()
+        try {
+            service.events().delete(GOOGLE_CAL_ID, eventId).execute()
+        } catch (e) {
+            log.error('Event could not be deleted', e)
+        }
     }
 
     CalendarBookingDto findAvailablilty(Date startDate, Date endDate, String timeZone) {

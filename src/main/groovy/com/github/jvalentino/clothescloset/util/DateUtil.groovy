@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat
         'UnnecessaryGetter',
         'NoJavaUtilDate',
         'DuplicateNumberLiteral',
+        'DuplicateStringLiteral',
 ])
 class DateUtil {
 
@@ -166,6 +167,17 @@ class DateUtil {
                 app.createdDateTimeIso = DateUtil.timestampToIso(app.createdDateTime, timeZone)
             }
         }
+    }
+
+    static int determineYear(Timestamp timestamp) {
+        DateUtil.getYear(timestamp)
+    }
+
+    static String determineSemester(Timestamp timestamp) {
+        if (timestamp.month >= 0 && timestamp.month <= 5) {
+            return 'Spring'
+        }
+        'Fall'
     }
 
 }

@@ -28,6 +28,7 @@ import com.github.jvalentino.clothescloset.repo.SchoolRepository
 import com.github.jvalentino.clothescloset.repo.SettingsRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
+import com.github.jvalentino.clothescloset.service.AppointmentService
 import com.github.jvalentino.clothescloset.service.CalendarService
 import com.github.jvalentino.clothescloset.service.PdfService
 import com.github.jvalentino.clothescloset.service.ReportingService
@@ -109,6 +110,9 @@ class AppointmentController {
     @Autowired
     ReportingService reportingService
 
+    @Autowired
+    AppointmentService appointmentService
+
     @PostMapping('/appointment/schedule')
     MakeAppointmentResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment, HttpServletRequest request) {
         MakeAppointmentResultDto result = new MakeAppointmentResultDto()
@@ -168,30 +172,18 @@ class AppointmentController {
         result
     }
 
+    @Deprecated
     @PostMapping('/appointment/waitlist/move')
     ResultDto moveFromWaitList(@Valid @RequestBody MoveFromWaitListDto input) {
         ResultDto result = new ResultDto()
+        appointmentService.rescheduleAppointment(input.appointmentId, input.datetime, input.timeZone)
+        result
+    }
 
-        Appointment appointment = appointmentRepository.getAppointmentDetails(input.appointmentId).first()
-        appointment.waitlist = false
-        appointment.datetime = DateUtil.isoToTimestamp(input.datetime, input.timeZone)
-        appointment.year = this.determineYear(appointment.datetime)
-        appointment.semester = this.determineSemester(appointment.datetime)
-
-        MakeAppointmentDto makeAppointment = new MakeAppointmentDto()
-        makeAppointment.datetime = input.datetime
-        makeAppointment.timeZone = input.timeZone
-        makeAppointment.guardian = appointment.guardian
-
-        for (Visit visit : appointment.visits) {
-            if (visit.student != null) {
-                makeAppointment.students.add(visit.student)
-            }
-        }
-        appointment.eventId = calendarService.bookSlot(makeAppointment)
-
-        appointmentRepository.save(appointment)
-
+    @PostMapping('/appointment/reschedule')
+    ResultDto reschedule(@Valid @RequestBody MoveFromWaitListDto input) {
+        ResultDto result = new ResultDto()
+        appointmentService.rescheduleAppointment(input.appointmentId, input.datetime, input.timeZone)
         result
     }
 
@@ -232,26 +224,15 @@ class AppointmentController {
 
         if (appointment.waitlist) {
             app.datetime = null
-            app.year = this.determineYear(app.createdDateTime)
-            app.semester = this.determineSemester(app.createdDateTime)
+            app.year = DateUtil.determineYear(app.createdDateTime)
+            app.semester = DateUtil.determineSemester(app.createdDateTime)
         } else {
             app.datetime = new Timestamp(DateUtil.toDate(appointment.datetime).time)
-            app.year = this.determineYear(app.datetime)
-            app.semester = this.determineSemester(app.datetime)
+            app.year = DateUtil.determineYear(app.datetime)
+            app.semester = DateUtil.determineSemester(app.datetime)
         }
 
         app
-    }
-
-    int determineYear(Timestamp timestamp) {
-        DateUtil.getYear(timestamp)
-    }
-
-    String determineSemester(Timestamp timestamp) {
-        if (timestamp.month >= 0 && timestamp.month <= 5) {
-            return 'Spring'
-        }
-        'Fall'
     }
 
     @SuppressWarnings(['NestedForLoop'])
