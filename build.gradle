@@ -37,6 +37,8 @@ dependencies {
 
 	implementation 'com.opencsv:opencsv:5.7.1'
 
+	implementation group: "com.twilio.sdk", name: "twilio", version: "9.2.2"
+
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 	implementation 'org.springframework:spring-context-support'
 
@@ -73,8 +75,8 @@ jacocoTestCoverageVerification {
 	violationRules {
 		rule {
 			limit {
-				//counter = 'LINE'
-				//minimum = 0.85
+				counter = 'LINE'
+				minimum = 0.65
 			}
 		}
 	}
