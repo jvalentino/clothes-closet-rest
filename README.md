@@ -45,6 +45,8 @@ You then have to create the initial database using pgadmin
 
 The Google API requires a json file for the service account, so the best way I could figure to get this to work was to base64 encode the thing and store it as the environment variable of `GOOGLE_CRED_JSON`. That way I don't have to store it in the source code, and I can't have a multi-line env var on Heroku.
 
+
+
 Otherwise the environment variable of `GOOGLE_CAL_ID` points to the name of the claendar to use:
 
 - DEV: `2dbcdac838ad46afef97271b63c8dc213a523a33f85f1b83ea3cc162d14e6963@group.calendar.google.com`
@@ -60,10 +62,12 @@ insert into accepted_id (student_id) values ('T01');
 
 It is then a matter of executing the main class of `ClothesclosetApplication`, but then having to go in and change that runtime to include the environmment variables regarding the calendar for:
 
-- GOOGLE_CRED_JSON
-- GOOGLE_CAL_ID
-- SMTP_PASSWORD
-- CC_EMAIL
+- GOOGLE_CRED_JSON - See the "Google Calenader" section above; this is a base 64 encoded JSON file you get from the Google Service acount.
+- GOOGLE_CAL_ID - This is the IDE of the google calendar, which for DEV should be `2dbcdac838ad46afef97271b63c8dc213a523a33f85f1b83ea3cc162d14e6963@group.calendar.google.com`
+- SMTP_PASSWORD - This is the SMTP password for Godaddy Outlook SMTP
+- CC_EMAIL - This is an email address that will be copied on every email message sent out
+- TWILLIO_SID - This will be `ACfc677e8d7e22f11323dc8b789a9eaa66`, which is the Account ID
+- TWILLIO_TOKEN - This is the Twilio account token for the SID.
 
 # Heroku Runtime Environment
 
@@ -77,6 +81,8 @@ All inputs are represented as environment variables under the settings:
 - **SMTP_PASSWORD** - The GoDaddy SMTP password for noreply@clothescloset.app
 - **CC_EMAIL** - When sending notifications prior to appointment, this address will be included as CC, which is set to clothescloset@hebisd.edu
 - **GRADLE_TASK** - Set to `build`, which is because by default heroku runs `gradle build -x check`, which means that the `check` task is exluded. Since there is where our test automation is, we don't want to skip that since this acts as our pipeline
+- **TWILLIO_SID** - This will be `ACfc677e8d7e22f11323dc8b789a9eaa66`, which is the Account ID
+- **TWILLIO_TOKEN** - This is the Twilio account token for the SID.
 
 It is otherwise setup to run test and check automation on code change, and then direclty deploy to production:
 
@@ -207,6 +213,22 @@ https://www.godaddy.com/ just happens to be the means by which the custom domain
 You then have to add the certficate public and private keys to Heroku:
 
 ![01](./wiki/25.png)
+
+## Twilio
+
+This is a paid service for being able to send text messages, chosen because of its price, simple API, and providing a Java library for the integration.
+
+Using it for sending text messages through require first creating a new Messaging Service:
+
+![01](./wiki/28.png)
+
+As a part of this process, a Twilio phone number will be generated for you, which will need to be the "from" number in any outoing test messages.
+
+![01](./wiki/29.png)
+
+This information as well as the credentials are otherwise provided on the dashboard:
+
+![01](./wiki/30.png)
 
 
 
