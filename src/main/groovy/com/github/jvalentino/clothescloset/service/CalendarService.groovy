@@ -48,6 +48,7 @@ class CalendarService {
     static final String COLOR_APPOINTMENT = '#ADADAD'
     static final String GOOGLE_CAL_ID = System.getenv('GOOGLE_CAL_ID')
     static final String GOOGLE_CRED_JSON = System.getenv('GOOGLE_CRED_JSON')
+    static final int SLOT_LENGTH_IN_MINUTES = 20
 
     InputStream loadGoogleCredentials() {
         String base64 = GOOGLE_CRED_JSON
@@ -212,9 +213,10 @@ class CalendarService {
         result
     }
 
-    // TODO: Note that this only works in 30 minute intervals
     String roundIso(String iso, String timeZone, int intervalMinutes=30, boolean forward=false) {
         Date date = DateUtil.toDate(iso, timeZone)
+
+        int increments = date.minutes / intervalMinutes
 
         if (date.minutes > 0 && date.minutes < intervalMinutes) {
             date.minutes = intervalMinutes
@@ -223,7 +225,7 @@ class CalendarService {
                 date.minutes = 0
                 date.hours = date.hours + 1
             } else {
-                date.minutes = intervalMinutes
+                date.minutes = intervalMinutes * increments
             }
         }
 
@@ -256,7 +258,7 @@ class CalendarService {
 
         java.util.Calendar c = java.util.Calendar.instance
         c.time = DateUtil.toDate(appointment.datetime)
-        c.add(java.util.Calendar.MINUTE, 30)
+        c.add(java.util.Calendar.MINUTE, SLOT_LENGTH_IN_MINUTES)
         String endDateIso = DateUtil.fromDate(c.time, appointment.timeZone)
 
         DateTime endDateTime = DateUtil.isoToDateTime(endDateIso)
@@ -290,7 +292,7 @@ class CalendarService {
         CalendarBookingDto result = new CalendarBookingDto()
         result.calendarEvents = this.getEvents(startDate, endDate)
         result.events = this.fillCalendar(result.calendarEvents, timeZone, startDate, endDate)
-        result.availability = this.findAvailableTimeSlots(result.events, timeZone, 30)
+        result.availability = this.findAvailableTimeSlots(result.events, timeZone, SLOT_LENGTH_IN_MINUTES)
 
         result
     }
