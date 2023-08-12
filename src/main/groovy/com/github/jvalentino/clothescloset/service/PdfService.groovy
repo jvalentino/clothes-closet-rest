@@ -200,7 +200,7 @@ class PdfService {
         x += 250
 
         // Boy Student
-        int bY = this.drawSettings(stream, x, y, 'Boy Student', appointment.girlSettings)
+        int bY = this.drawSettings(stream, x, y, 'Boy Student', appointment.boySettings)
 
         if (bY < gY) {
             y = bY
