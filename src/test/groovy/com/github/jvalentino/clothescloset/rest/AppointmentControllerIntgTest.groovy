@@ -74,6 +74,7 @@ class AppointmentControllerIntgTest extends BaseIntg {
         foundStudent.grade == student.grade
         foundStudent.gender == student.gender
         foundStudent.school == student.school
+
     }
 
     def "test schedule on waitlist"() {

@@ -31,6 +31,7 @@ import java.sql.Timestamp
         'UnnecessaryObjectReferences',
         'UnnecessaryGetter',
         'UnnecessarySetter',
+        'DuplicateStringLiteral',
 ])
 class AppointmentService {
 
@@ -51,6 +52,12 @@ class AppointmentService {
 
     @Autowired
     VisitRepository visitRepository
+
+    @Autowired
+    EmailService emailService
+
+    @Autowired
+    SmsService smsService
 
     void rescheduleAppointment(Long appointmentId, String datetime, String timeZone) {
         Appointment appointment = appointmentRepository.getAppointmentDetails(appointmentId).first()
@@ -139,7 +146,54 @@ class AppointmentService {
             result.visitIds.add(visit.visitId)
         }
 
+        // Generate the confirmation email, but only if not on wait list
+        if (!appointment.waitlist) {
+            List<String> emails = this.generateConfirmationEmail(app, appointment.students)
+            String subject = emails.first()
+            String body = emails.last()
+            emailService.sendEmailAsync(subject, body, app.guardian.email)
+        }
+
         result
+    }
+
+    List<String> generateConfirmationEmail(Appointment app, List<Student> students) {
+        StringBuilder subject = new StringBuilder()
+        subject.append('Clothes Closet Appointment Scheduled: ')
+        subject.append(DateUtil.timestampToFriendlyTime(app.datetime, 'CST'))
+
+        StringBuilder body = new StringBuilder()
+        body.append('<p>')
+        body.append('Thank you, your appointment with the Clothes Closet has been scheduled for ')
+        body.append('<b>')
+        body.append(DateUtil.timestampToFriendlyTime(app.datetime, 'CST'))
+        body.append('</b>')
+        body.append('</p>\n')
+
+        body.append('<p>')
+        body.append('You will receive an email 24-hours prior to your appointment, ')
+        body.append('and if you provided a mobile phone number you will also receive a text message.')
+        body.append('<p>\n')
+
+        body.append('<ol>\n')
+        for (Student student : students) {
+            body.append('<li>')
+            body.append('Student ID: ')
+            body.append(student.studentId)
+            body.append(', ')
+            body.append('Gender: ')
+            body.append(student.gender)
+            body.append(', ')
+            body.append('Grade ID: ')
+            body.append(student.grade)
+            body.append(', ')
+            body.append('School: ')
+            body.append(student.school)
+            body.append('</li>\n')
+        }
+        body.append('</ol>\n')
+
+        [subject, body]
     }
 
     protected void validateStudentIdsOnList(MakeAppointmentDto appointment, ResultDto result) {

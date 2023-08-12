@@ -14,6 +14,7 @@ import com.github.jvalentino.clothescloset.repo.SpringSessionRepository
 import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.repo.VisitRepository
 import com.github.jvalentino.clothescloset.service.CalendarService
+import com.github.jvalentino.clothescloset.service.EmailService
 import org.junit.jupiter.api.extension.ExtendWith
 import org.spockframework.spring.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -55,6 +56,9 @@ abstract class BaseIntg extends Specification {
 
     @SpringBean
     CalendarService calendarService = Mock()
+
+    @SpringBean
+    EmailService emailService = Mock()
 
     @PersistenceContext
     EntityManager entityManager

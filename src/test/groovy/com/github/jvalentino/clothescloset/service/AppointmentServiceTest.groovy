@@ -31,6 +31,7 @@ class AppointmentServiceTest extends Specification {
             acceptedIdRepository = Mock(AcceptedIdRepository)
             studentRepository = Mock(StudentRepository)
             visitRepository = Mock(VisitRepository)
+            emailService = Mock(EmailService)
         }
     }
 

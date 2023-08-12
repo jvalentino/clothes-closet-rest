@@ -113,7 +113,8 @@ class AppointmentController {
 
     @PostMapping('/appointment/schedule')
     MakeAppointmentResultDto schedule(@Valid @RequestBody MakeAppointmentDto appointment, HttpServletRequest request) {
-        appointmentService.schedule(appointment, request)
+        MakeAppointmentResultDto result = appointmentService.schedule(appointment, request)
+        result
     }
 
     @PostMapping('/appointment/admin/schedule')
