@@ -84,6 +84,8 @@ class AppointmentService {
         appointment.eventId = calendarService.bookSlot(makeAppointment)
 
         appointmentRepository.save(appointment)
+
+        this.sendConfirmationEmail(appointment, makeAppointment.students)
     }
 
     MakeAppointmentResultDto schedule(MakeAppointmentDto appointment, HttpServletRequest request,
@@ -148,16 +150,13 @@ class AppointmentService {
 
         // Generate the confirmation email, but only if not on wait list
         if (!appointment.waitlist) {
-            List<String> emails = this.generateConfirmationEmail(app, appointment.students)
-            String subject = emails.first()
-            String body = emails.last()
-            emailService.sendEmailAsync(subject, body, app.guardian.email)
+            this.sendConfirmationEmail(app, appointment.students)
         }
 
         result
     }
 
-    List<String> generateConfirmationEmail(Appointment app, List<Student> students) {
+    protected List<String> generateConfirmationEmail(Appointment app, List<Student> students) {
         StringBuilder subject = new StringBuilder()
         subject.append('Clothes Closet Appointment Scheduled: ')
         subject.append(DateUtil.timestampToFriendlyTime(app.datetime, 'CST'))
@@ -194,6 +193,13 @@ class AppointmentService {
         body.append('</ol>\n')
 
         [subject, body]
+    }
+
+    protected void sendConfirmationEmail(Appointment app, List<Student> students) {
+        List<String> emails = this.generateConfirmationEmail(app, students)
+        String subject = emails.first()
+        String body = emails.last()
+        emailService.sendEmailAsync(subject, body, app.guardian.email)
     }
 
     protected void validateStudentIdsOnList(MakeAppointmentDto appointment, ResultDto result) {
