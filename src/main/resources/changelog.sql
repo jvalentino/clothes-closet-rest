@@ -253,3 +253,10 @@ ALTER TABLE appointment
   ADD noshow boolean;
 
 UPDATE appointment SET noshow = false where noshow IS NULL;
+
+-- changeset liquibase:11
+
+ALTER TABLE appointment
+  ADD contacted boolean;
+
+UPDATE appointment SET contacted = false where contacted IS NULL;

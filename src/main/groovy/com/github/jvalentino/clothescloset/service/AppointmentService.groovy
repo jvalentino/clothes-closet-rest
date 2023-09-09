@@ -156,6 +156,12 @@ class AppointmentService {
         result
     }
 
+    void markContacted(long appointmentId, boolean contacted) {
+        Appointment appointment = appointmentRepository.findById(appointmentId).get()
+        appointment.contacted = contacted
+        appointmentRepository.save(appointment)
+    }
+
     protected List<String> generateConfirmationEmail(Appointment app, List<Student> students) {
         StringBuilder subject = new StringBuilder()
         subject.append('Clothes Closet Appointment Scheduled: ')
