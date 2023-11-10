@@ -127,7 +127,7 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
             left join fetch a.visits as v
             left join fetch v.student as s
             where a.semester = ?1 and a.year = ?2
-            and s.studentId in ?3 and a.waitlist = false
+            and s.studentId in ?3
         ''')
     List<Appointment> findWithVisitsByStudentIds(String semester, int year, List<String> studentIds)
 

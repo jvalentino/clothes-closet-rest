@@ -246,6 +246,31 @@ class AppointmentControllerIntgTest extends BaseIntg {
         ]
     }
 
+    def "test schedule when already been from waitlist"() {
+        given: 'A valid appointment payload'
+        MakeAppointmentDto input = this.generateAppointment(true)
+        input.currentDate = DateUtil.toDate('2022-01-02T00:30:00.000+0000')
+
+        and: 'That the student is on the approved list'
+        acceptedIdRepository.save(new AcceptedId(studentId:input.students.first().studentId))
+
+        and:
+        this.makeAndStoreAppointment('2022-01-05T00:30:00.000+0000', true)
+
+        when: 'POST to /appointment/schedule'
+        MakeAppointmentResultDto result = this.scheduleAppointment(input)
+
+        then: 'Result POST is NOT successful'
+        0 * calendarService.bookSlot(_)
+        result.success == false
+        result.messages == [
+                'echo 2022-01-05T00:30:00.000+0000'
+        ]
+        result.codes == [
+                'ALREADY_BEEN'
+        ]
+    }
+
     def "test schedule when already been but admin override"() {
         given: 'A valid appointment payload'
         MakeAppointmentDto input = this.generateAppointment()
@@ -273,7 +298,7 @@ class AppointmentControllerIntgTest extends BaseIntg {
 
     //
 
-    private MakeAppointmentDto generateAppointment() {
+    private MakeAppointmentDto generateAppointment(boolean waitlist=false) {
         Guardian guardian = new Guardian()
         guardian.with {
             email = 'alpha@bravo.com'
@@ -298,6 +323,7 @@ class AppointmentControllerIntgTest extends BaseIntg {
             students = [student]
         }
         input.guardian = guardian
+        input.waitlist = waitlist
 
         input
     }

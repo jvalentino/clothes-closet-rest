@@ -143,6 +143,7 @@ abstract class BaseIntg extends Specification {
         appointment.semester = datetimeIso == null ? null : DateUtil.determineSemester(DateUtil.isoToTimestamp(datetimeIso))
         appointment.datetime = datetimeIso == null ? null : DateUtil.isoToTimestamp(datetimeIso)
         appointment.eventId = eventId
+        appointment.createdDateTime = datetimeIso == null ? null : DateUtil.isoToTimestamp(datetimeIso)
         appointment = appointmentRepository.save(appointment)
 
         Visit visit = new Visit()

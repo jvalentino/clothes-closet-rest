@@ -263,7 +263,7 @@ class AppointmentService {
         for (Student student : appointment.students) {
             studentIds.add(student.studentId)
         }
-        //List<Appointment> all = appointmentRepository.all(false)
+        //List<Appointment> all = appointmentRepository.findAll()
         List<Appointment> prevAppointments = appointmentRepository.findWithVisitsByStudentIds(
                 app.semester, app.year, studentIds
         )
@@ -273,9 +273,16 @@ class AppointmentService {
             result.codes = ['ALREADY_BEEN']
             for (Appointment a : prevAppointments) {
                 for (Visit v : a.visits) {
+                    Long time = null
                     if (studentIds.contains(v.student.studentId)) {
+                        if (appointment.waitlist == true) {
+                            time = a.createdDateTime.time
+                        } else {
+                            time = a.datetime.time
+                        }
+
                         result.messages.add(v.student.studentId + ' ' +
-                                DateUtil.fromDate(new Date(a.datetime.time), appointment.timeZone))
+                                DateUtil.fromDate(new Date(time), appointment.timeZone))
                     }
                 }
             }
