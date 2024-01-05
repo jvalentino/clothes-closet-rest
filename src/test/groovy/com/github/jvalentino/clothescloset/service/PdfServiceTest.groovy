@@ -66,7 +66,7 @@ class PdfServiceTest extends Specification {
                     new Visit(person:new Person(relation:'spouse')),
                     new Visit(student:new Student(
                             studentId:'123', grade:'1', gender:'Male',
-                            school:'Charlie School', sizeType: 'Adult',
+                            school:'Charlie School',
                             shoeSize: '10', underwearSize: 'L'))
             ]
         }

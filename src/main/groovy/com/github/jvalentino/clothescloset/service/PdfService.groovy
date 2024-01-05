@@ -145,12 +145,7 @@ class PdfService {
                 x = PAGE_LEFT_X
                 y -= yOffsetMinor
 
-                this.drawText(stream, 'Size:', x, y, true)
                 x += xOffsetMinor
-
-                this.drawText(
-                        stream, "${visit.student?.sizeType}",
-                        x, y)
                 x += xOffsetMajor
 
                 this.drawText(stream, 'Shoe:', x, y, true)

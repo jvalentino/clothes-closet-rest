@@ -268,3 +268,6 @@ ALTER TABLE student
     ADD shoe_size VARCHAR(20),
     ADD underwear_size VARCHAR(20);
 
+-- changeset liquibase:13
+ALTER TABLE student
+    DROP COLUMN size_type;

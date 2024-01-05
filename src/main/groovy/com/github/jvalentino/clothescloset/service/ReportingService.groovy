@@ -41,15 +41,35 @@ class ReportingService {
 
                 result.totalPeople++
 
-                result.socks += visit.socks
-                result.underwear += visit.underwear
-                result.shoes += visit.shoes
-                result.coats += visit.coats
-                result.backpacks += visit.backpacks
-                result.misc += visit.misc
+                if (visit.socks != null) {
+                    result.socks += visit.socks
+                    result.total += visit.socks
+                }
 
-                result.total += visit.socks + visit.underwear + visit.shoes +
-                        visit.coats + visit.backpacks + visit.misc
+                if (visit.underwear != null) {
+                    result.underwear += visit.underwear
+                    result.total += visit.underwear
+                }
+
+                if (visit.shoes != null) {
+                    result.shoes += visit.shoes
+                    result.total += visit.shoes
+                }
+
+                if (visit.coats != null) {
+                    result.coats += visit.coats
+                    result.total += visit.coats
+                }
+
+                if (visit.backpacks != null) {
+                    result.backpacks += visit.backpacks
+                    result.total += visit.backpacks
+                }
+
+                if (visit.misc != null) {
+                    result.misc += visit.misc
+                    result.total += visit.misc
+                }
             }
         }
 

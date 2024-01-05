@@ -314,7 +314,6 @@ class AppointmentControllerIntgTest extends BaseIntg {
             grade = '1'
             gender = 'Female'
             school = 'Foxtrot'
-            sizeType = 'Adult'
             underwearSize = 'L'
             shoeSize = '10'
         }
@@ -347,7 +346,6 @@ class AppointmentControllerIntgTest extends BaseIntg {
             grade = '1'
             gender = 'Female'
             school = 'Foxtrot'
-            sizeType = 'Adult'
             underwearSize = 'L'
             shoeSize = '10'
         }

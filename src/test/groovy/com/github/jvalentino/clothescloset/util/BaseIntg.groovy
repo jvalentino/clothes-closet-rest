@@ -132,7 +132,6 @@ abstract class BaseIntg extends Specification {
                 grade:grade,
                 gender:gender,
                 school:school,
-                sizeType:'Adult',
                 underwearSize:'L',
                 shoeSize:'10'
         )
