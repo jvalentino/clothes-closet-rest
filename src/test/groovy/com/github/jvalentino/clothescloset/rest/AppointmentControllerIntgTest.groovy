@@ -314,6 +314,9 @@ class AppointmentControllerIntgTest extends BaseIntg {
             grade = '1'
             gender = 'Female'
             school = 'Foxtrot'
+            sizeType = 'Adult'
+            underwearSize = 'L'
+            shoeSize = '10'
         }
 
         MakeAppointmentDto input = new MakeAppointmentDto()
@@ -344,6 +347,9 @@ class AppointmentControllerIntgTest extends BaseIntg {
             grade = '1'
             gender = 'Female'
             school = 'Foxtrot'
+            sizeType = 'Adult'
+            underwearSize = 'L'
+            shoeSize = '10'
         }
 
         MakeAppointmentDto input = new MakeAppointmentDto()

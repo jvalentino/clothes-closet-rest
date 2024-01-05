@@ -34,6 +34,19 @@ class Student {
     @NotBlank(message = 'grade cannot be blank')
     String grade
 
+    /** meant to be either youth or adult, which determines their size options for shoes and underwear */
+    @NotBlank(message = 'size cannot be blank')
+    @Column(name = 'size_type')
+    String sizeType
+
+    @NotBlank(message = 'shoe size cannot be blank')
+    @Column(name = 'shoe_size')
+    String shoeSize
+
+    @NotBlank(message = 'underwear size cannot be blank')
+    @Column(name = 'underwear_size')
+    String underwearSize
+
     @OneToMany(mappedBy='student', fetch = FetchType.LAZY)
     @JsonIgnore
     Set<Visit> visits

@@ -131,7 +131,10 @@ abstract class BaseIntg extends Specification {
                 studentId:studentId,
                 grade:grade,
                 gender:gender,
-                school:school
+                school:school,
+                sizeType:'Adult',
+                underwearSize:'L',
+                shoeSize:'10'
         )
         student = studentRepository.save(student)
 

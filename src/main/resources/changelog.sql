@@ -260,3 +260,11 @@ ALTER TABLE appointment
   ADD contacted boolean;
 
 UPDATE appointment SET contacted = false where contacted IS NULL;
+
+-- changeset liquibase:12
+
+ALTER TABLE student
+    ADD size_type VARCHAR(20),
+    ADD shoe_size VARCHAR(20),
+    ADD underwear_size VARCHAR(20);
+
