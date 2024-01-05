@@ -83,6 +83,7 @@ class PdfService {
         int xOffsetMajor = 120
         int xOffsetMinor = 60
         int yOffsetMajor = 30
+        int yOffsetMinor = 15
         int x = PAGE_LEFT_X
         int y = PAGE_TOP_Y
 
@@ -139,6 +140,34 @@ class PdfService {
                 this.drawText(
                         stream, "${visit.student.school}",
                         x, y)
+
+                // size information
+                x = PAGE_LEFT_X
+                y -= yOffsetMinor
+
+                this.drawText(stream, 'Size:', x, y, true)
+                x += xOffsetMinor
+
+                this.drawText(
+                        stream, "${visit.student?.sizeType}",
+                        x, y)
+                x += xOffsetMajor
+
+                this.drawText(stream, 'Shoe:', x, y, true)
+                x += xOffsetMinor
+
+                this.drawText(
+                        stream, "${visit.student?.shoeSize}",
+                        x, y)
+                x += xOffsetMajor
+
+                this.drawText(stream, 'Underwear:', x, y, true)
+                x += xOffsetMinor
+
+                this.drawText(
+                        stream, "${visit.student?.underwearSize}",
+                        x, y)
+                x += xOffsetMajor
             } else {
                 this.drawText(stream, 'Person:', x, y, true)
                 x += xOffsetMinor

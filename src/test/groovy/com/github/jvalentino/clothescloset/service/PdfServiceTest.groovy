@@ -64,7 +64,10 @@ class PdfServiceTest extends Specification {
                     phoneTypeLabel:'mobile')
             visits = [
                     new Visit(person:new Person(relation:'spouse')),
-                    new Visit(student:new Student(studentId:'123', grade:'1', gender:'Male', school:'Charlie School'))
+                    new Visit(student:new Student(
+                            studentId:'123', grade:'1', gender:'Male',
+                            school:'Charlie School', sizeType: 'Adult',
+                            shoeSize: '10', underwearSize: 'L'))
             ]
         }
         one.appointment = a1
