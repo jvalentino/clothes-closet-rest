@@ -17,7 +17,7 @@ interface StudentRepository extends JpaRepository<Student, String> {
                 visit v,
                 student s
             where
-                a.happened = true
+                a.happened = false
                 and v.appointment_id = a.appointment_id
                 and s.student_id = v.student_id
                 and a.datetime >= ?1 and a.datetime < ?2
@@ -33,7 +33,7 @@ interface StudentRepository extends JpaRepository<Student, String> {
                 visit v,
                 student s
             where
-                a.happened = true
+                a.happened = false
                 and v.appointment_id = a.appointment_id
                 and s.student_id = v.student_id
                 and a.datetime >= ?1 and a.datetime < ?2
