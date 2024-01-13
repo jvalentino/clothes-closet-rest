@@ -8,6 +8,7 @@ import com.github.jvalentino.clothescloset.dto.MakeAppointmentDto
 import com.github.jvalentino.clothescloset.dto.MakeAppointmentResultDto
 import com.github.jvalentino.clothescloset.dto.MoveFromWaitListDto
 import com.github.jvalentino.clothescloset.dto.MultiPrintRequestDto
+import com.github.jvalentino.clothescloset.dto.NameValuePairDto
 import com.github.jvalentino.clothescloset.dto.PrintAppointmentDto
 import com.github.jvalentino.clothescloset.dto.ReportingDto
 import com.github.jvalentino.clothescloset.dto.ResultDto
@@ -381,6 +382,26 @@ class AppointmentController {
         ReportingDto result = reportingService.generateReport(startDate, endDate, timeZone)
 
         result
+    }
+
+    @GetMapping('/appointment/report-shoes')
+    List<NameValuePairDto> reportShoes(@RequestParam String start, @RequestParam String end,
+                                       @RequestParam(required = false, defaultValue = 'America/Chicago')
+                                String timeZone) {
+        Date startDate = DateUtil.fromYearMonthDay(start, timeZone)
+        Date endDate = DateUtil.fromYearMonthDay(end, timeZone)
+
+        reportingService.generateShoeReport(startDate, endDate)
+    }
+
+    @GetMapping('/appointment/report-underwear')
+    List<NameValuePairDto> reportUnderwear(@RequestParam String start, @RequestParam String end,
+                                       @RequestParam(required = false, defaultValue = 'America/Chicago')
+                                               String timeZone) {
+        Date startDate = DateUtil.fromYearMonthDay(start, timeZone)
+        Date endDate = DateUtil.fromYearMonthDay(end, timeZone)
+
+        reportingService.generateUnderwearReport(startDate, endDate)
     }
 
     @PostMapping('/appointment/{appointmentId}/contacted/{contacted}')

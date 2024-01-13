@@ -1,9 +1,11 @@
 package com.github.jvalentino.clothescloset.service
 
+import com.github.jvalentino.clothescloset.dto.NameValuePairDto
 import com.github.jvalentino.clothescloset.dto.ReportingDto
 import com.github.jvalentino.clothescloset.entity.Appointment
 import com.github.jvalentino.clothescloset.entity.Visit
 import com.github.jvalentino.clothescloset.repo.AppointmentRepository
+import com.github.jvalentino.clothescloset.repo.StudentRepository
 import com.github.jvalentino.clothescloset.util.DateUtil
 import groovy.transform.CompileDynamic
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +22,33 @@ class ReportingService {
 
     @Autowired
     AppointmentRepository appointmentRepository
+
+    @Autowired
+    StudentRepository studentRepository
+
+    List<NameValuePairDto> generateShoeReport(Date startDate, Date endDate) {
+        List<Object[]> responses = studentRepository.reportOnShoeSizes(startDate, endDate)
+        List<NameValuePairDto> results = []
+
+        for (Object[] object : responses) {
+            NameValuePairDto dto = new NameValuePairDto(name:object[0], value:object[1])
+            results.add(dto)
+        }
+
+        results
+    }
+
+    List<NameValuePairDto> generateUnderwearReport(Date startDate, Date endDate) {
+        List<Object[]> responses = studentRepository.reportOnUnderwearSizes(startDate, endDate)
+        List<NameValuePairDto> results = []
+
+        for (Object[] object : responses) {
+            NameValuePairDto dto = new NameValuePairDto(name:object[0], value:object[1])
+            results.add(dto)
+        }
+
+        results
+    }
 
     ReportingDto generateReport(Date startDate, Date endDate, String timeZone) {
         ReportingDto result = new ReportingDto()
