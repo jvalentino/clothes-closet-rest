@@ -185,10 +185,12 @@ class AppointmentController {
                                             @RequestParam Optional<String> name,
                                             @RequestParam Optional<Boolean> waiting,
                                             @RequestParam(required = false, defaultValue = 'America/Chicago')
-                                            String timeZone) {
+                                            String timeZone,
+                                            @RequestParam Optional<String> studentId) {
         String dateString = date.empty ? null : date.get()
         String nameString = name.empty ? null : name.get()
         boolean waitlist = waiting.empty ? false : waiting.get()
+        String studentIdString = studentId.empty ? null : studentId.get()
 
         AppointmentSearchDto result = new AppointmentSearchDto()
         result.name = nameString
@@ -202,7 +204,9 @@ class AppointmentController {
             result.endDateIso = DateUtil.fromDate(result.endDate, timeZone)
         }
 
-        if (result.name != null && result.date != null) {
+        if (studentIdString != null) {
+            result.appointments = appointmentRepository.listByStudentIdMatch(studentIdString)
+        } else if (result.name != null && result.date != null) {
             result.appointments = appointmentRepository.listOnDateWithNameMatch(
                     result.startDate,
                     result.endDate,

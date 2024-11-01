@@ -30,6 +30,15 @@ interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query('''
             select distinct appointment from Appointment appointment
             left join fetch appointment.guardian as guardian
+            left join fetch appointment.visits as visits
+            left join fetch visits.student as student
+            where student.studentId = ?1
+        ''')
+    List<Appointment> listByStudentIdMatch(String name)
+
+    @Query('''
+            select distinct appointment from Appointment appointment
+            left join fetch appointment.guardian as guardian
             where appointment.datetime >= ?1 and appointment.datetime < ?2
             and appointment.waitlist = ?3
             order by appointment.datetime DESC, appointment.createdDateTime ASC

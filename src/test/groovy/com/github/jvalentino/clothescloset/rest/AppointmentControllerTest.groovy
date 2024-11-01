@@ -52,13 +52,14 @@ class AppointmentControllerTest extends Specification {
         Optional<String> name = GroovyMock()
         Optional<String> waiting = GroovyMock()
         String timeZone = 'GMT'
+        Optional<String> studentId = GroovyMock()
 
         and:
         List<Appointment> appointments = [
                 new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
         ]
         when:
-        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone)
+        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone, studentId)
 
         then:
         1 * date.empty >> true
@@ -82,13 +83,14 @@ class AppointmentControllerTest extends Specification {
         Optional<String> name = GroovyMock()
         Optional<String> waiting = GroovyMock()
         String timeZone = 'GMT'
+        Optional<String> studentId = GroovyMock()
 
         and:
         List<Appointment> appointments = [
                 new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
         ]
         when:
-        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone)
+        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone, studentId)
 
         then:
         1 * waiting.empty >> true
@@ -118,13 +120,14 @@ class AppointmentControllerTest extends Specification {
         Optional<String> name = GroovyMock()
         Optional<String> waiting = GroovyMock()
         String timeZone = 'GMT'
+        Optional<String> studentId = GroovyMock()
 
         and:
         List<Appointment> appointments = [
                 new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
         ]
         when:
-        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone)
+        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone, studentId)
 
         then:
         1 * date.empty >> true
@@ -149,13 +152,14 @@ class AppointmentControllerTest extends Specification {
         Optional<String> name = GroovyMock()
         Optional<String> waiting = GroovyMock()
         String timeZone = 'GMT'
+        Optional<String> studentId = GroovyMock()
 
         and:
         List<Appointment> appointments = [
                 new Appointment(datetime: DateUtil.isoToTimestamp('2023-05-01T00:00:00.000+0000'))
         ]
         when:
-        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone)
+        AppointmentSearchDto result = subject.searchAppointments(date, name, waiting, timeZone, studentId)
 
         then:
         1 * date.empty >> false
