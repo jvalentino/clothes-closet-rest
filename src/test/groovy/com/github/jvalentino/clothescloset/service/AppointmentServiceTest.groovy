@@ -296,7 +296,7 @@ class AppointmentServiceTest extends Specification {
 
         and:
         Appointment prevAppointment = new Appointment()
-        prevAppointment.datetime = new Timestamp(100, 1, 1, 1, 1, 1, 0)
+        prevAppointment.datetime = DateUtil.isoToTimestamp("2000-02-01T01:01:01.000-0600")
         Visit visit = new Visit()
         prevAppointment.visits = [visit]
         visit.student = student
@@ -305,8 +305,6 @@ class AppointmentServiceTest extends Specification {
         subject.validateStudentsHaveNotAlreadyBeen(appointment, result, app, oneAppointmentPerYear)
 
         then:
-
-
         1 * subject.appointmentRepository.findWithVisitsByStudentIds(
                 "Fall", 2020, ["foxtrot"]) >> [prevAppointment]
         result.codes == ['ALREADY_BEEN']
@@ -392,7 +390,7 @@ class AppointmentServiceTest extends Specification {
 
         and:
         Appointment prevAppointment = new Appointment()
-        prevAppointment.datetime = new Timestamp(100, 1, 1, 1, 1, 1, 0)
+        prevAppointment.datetime = DateUtil.isoToTimestamp("2000-02-01T01:01:01.000-0600")
         Visit visit = new Visit()
         prevAppointment.visits = [visit]
         visit.student = student
