@@ -36,6 +36,7 @@ class AppointmentServiceTest extends Specification {
         }
     }
 
+
     void "test rescheduleAppointment when from waitlist"() {
         given:
         Long appointmentId = 1L
