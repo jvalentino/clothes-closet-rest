@@ -409,6 +409,7 @@ class AppointmentServiceTest extends Specification {
         1 * subject.appointmentRepository.findWithVisitsByStudentIds(
                 "Fall", 2019, ["foxtrot"]) >> [prevAppointment]
 
+
         and:
         result.codes == ['ALREADY_BEEN']
         result.messages == ['foxtrot 2000-02-01T01:01:01.000-0600']
