@@ -15,6 +15,7 @@ import com.github.jvalentino.clothescloset.util.DateUtil
 import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 import javax.servlet.http.HttpServletRequest
@@ -58,6 +59,9 @@ class AppointmentService {
 
     @Autowired
     SmsService smsService
+
+    @Value('${setting.one_appointment_per_year}')
+    boolean oneAppointmentPerYear
 
     void rescheduleAppointment(Long appointmentId, String datetime, String timeZone) {
         Appointment appointment = appointmentRepository.getAppointmentDetails(appointmentId).first()
@@ -113,7 +117,7 @@ class AppointmentService {
 
         // now make sure these students have not already had a visit this semester
         if (!override) {
-            this.validateStudentsHaveNotAlreadyBeen(appointment, result, app)
+            this.validateStudentsHaveNotAlreadyBeen(appointment, result, app, oneAppointmentPerYear)
             if (result.messages.size() != 0) {
                 return result
             }
@@ -258,15 +262,22 @@ class AppointmentService {
 
     protected @SuppressWarnings(['NestedForLoop'])
     void validateStudentsHaveNotAlreadyBeen(MakeAppointmentDto appointment, ResultDto result,
-                                            Appointment app) {
+                                            Appointment app, boolean oneAppointmentPerYear) {
         List<String> studentIds = []
         for (Student student : appointment.students) {
             studentIds.add(student.studentId)
         }
-        //List<Appointment> all = appointmentRepository.findAll()
+        // This is where we pull the appointment from the current semester and year
         List<Appointment> prevAppointments = appointmentRepository.findWithVisitsByStudentIds(
-                app.semester, app.year, studentIds
-        )
+                app.semester, app.year, studentIds)
+
+        // This is where we need to find appointments from the previous semester
+        if (oneAppointmentPerYear && app.semester == 'Spring') {
+            // pull appointments from the previous Fall
+            List<Appointment> moreAppointments = appointmentRepository.findWithVisitsByStudentIds(
+                    'Fall', app.year - 1, studentIds)
+            prevAppointments.addAll(moreAppointments)
+        }
 
         if (prevAppointments.size() != 0) {
             result.success = false

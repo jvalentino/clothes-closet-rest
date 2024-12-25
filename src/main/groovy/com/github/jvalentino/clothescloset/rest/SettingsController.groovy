@@ -11,6 +11,7 @@ import com.github.jvalentino.clothescloset.repo.SchoolRepository
 import com.github.jvalentino.clothescloset.repo.SettingsRepository
 import com.opencsv.bean.CsvToBeanBuilder
 import groovy.transform.CompileDynamic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -26,6 +27,7 @@ import javax.validation.Valid
  */
 @CompileDynamic
 @RestController
+@Slf4j
 class SettingsController {
 
     @Autowired

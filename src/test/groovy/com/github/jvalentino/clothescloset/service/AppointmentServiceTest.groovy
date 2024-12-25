@@ -16,6 +16,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import javax.servlet.http.HttpServletRequest
+import java.sql.Timestamp
 
 class AppointmentServiceTest extends Specification {
 
@@ -216,5 +217,204 @@ class AppointmentServiceTest extends Specification {
         result.success == false
 
     }
+
+    void "test validateStudentsHaveNotAlreadyBeen when NOT ALREADY_BEEN"() {
+        given:
+        boolean oneAppointmentPerYear = false
+        MakeAppointmentDto appointment = new MakeAppointmentDto()
+        appointment.datetime = '2023-05-01T00:00:00.000+0000'
+        appointment.locale = 'fr'
+
+        appointment.guardian = new Guardian()
+        appointment.guardian.with {
+            email = "alpha"
+            firstName = "bravo"
+            lastName = "charlie"
+            phoneNumber = "delta"
+            phoneTypeLabel = "echo"
+        }
+
+        Student student = new Student()
+        student.with {
+            studentId = "foxtrot"
+            school = "golf"
+            gender = "hotel"
+            grade = "india"
+        }
+        appointment.students = [student]
+
+        and:
+        Appointment app = new Appointment()
+        app.semester = 'Fall'
+        app.year = 2020
+
+        and:
+        ResultDto result = new ResultDto()
+
+        when:
+        subject.validateStudentsHaveNotAlreadyBeen(appointment, result, app, oneAppointmentPerYear)
+
+        then:
+        1 * subject.appointmentRepository.findWithVisitsByStudentIds(
+                "Fall", 2020, ["foxtrot"]) >> []
+        result.success == true
+
+    }
+
+    void "test validateStudentsHaveNotAlreadyBeen when ALREADY_BEEN"() {
+        given:
+        boolean oneAppointmentPerYear = false
+        MakeAppointmentDto appointment = new MakeAppointmentDto()
+        appointment.datetime = '2023-05-01T00:00:00.000+0000'
+        appointment.locale = 'fr'
+
+        appointment.guardian = new Guardian()
+        appointment.guardian.with {
+            email = "alpha"
+            firstName = "bravo"
+            lastName = "charlie"
+            phoneNumber = "delta"
+            phoneTypeLabel = "echo"
+        }
+
+        Student student = new Student()
+        student.with {
+            studentId = "foxtrot"
+            school = "golf"
+            gender = "hotel"
+            grade = "india"
+        }
+        appointment.students = [student]
+
+        and:
+        Appointment app = new Appointment()
+        app.semester = 'Fall'
+        app.year = 2020
+
+        and:
+        ResultDto result = new ResultDto()
+
+        and:
+        Appointment prevAppointment = new Appointment()
+        prevAppointment.datetime = new Timestamp(100, 1, 1, 1, 1, 1, 0)
+        Visit visit = new Visit()
+        prevAppointment.visits = [visit]
+        visit.student = student
+
+        when:
+        subject.validateStudentsHaveNotAlreadyBeen(appointment, result, app, oneAppointmentPerYear)
+
+        then:
+
+
+        1 * subject.appointmentRepository.findWithVisitsByStudentIds(
+                "Fall", 2020, ["foxtrot"]) >> [prevAppointment]
+        result.codes == ['ALREADY_BEEN']
+        result.messages == ['foxtrot 2000-02-01T01:01:01.000-0600']
+        result.success == false
+
+    }
+
+    void "test validateStudentsHaveNotAlreadyBeen when NOT ALREADY_BEEN and oneAppointmentPerYear"() {
+        given:
+        boolean oneAppointmentPerYear = true
+        MakeAppointmentDto appointment = new MakeAppointmentDto()
+        appointment.datetime = '2023-02-01T00:00:00.000+0000'
+        appointment.locale = 'fr'
+
+        appointment.guardian = new Guardian()
+        appointment.guardian.with {
+            email = "alpha"
+            firstName = "bravo"
+            lastName = "charlie"
+            phoneNumber = "delta"
+            phoneTypeLabel = "echo"
+        }
+
+        Student student = new Student()
+        student.with {
+            studentId = "foxtrot"
+            school = "golf"
+            gender = "hotel"
+            grade = "india"
+        }
+        appointment.students = [student]
+
+        and:
+        Appointment app = new Appointment()
+        app.semester = 'Spring'
+        app.year = 2020
+
+        and:
+        ResultDto result = new ResultDto()
+
+        when:
+        subject.validateStudentsHaveNotAlreadyBeen(appointment, result, app, oneAppointmentPerYear)
+
+        then:
+        1 * subject.appointmentRepository.findWithVisitsByStudentIds(
+                "Spring", 2020, ["foxtrot"]) >> []
+        1 * subject.appointmentRepository.findWithVisitsByStudentIds(
+                "Fall", 2019, ["foxtrot"]) >> []
+        result.success == true
+
+    }
+
+    void "test validateStudentsHaveNotAlreadyBeen when ALREADY_BEEN and oneAppointmentPerYear"() {
+        given:
+        boolean oneAppointmentPerYear = true
+        MakeAppointmentDto appointment = new MakeAppointmentDto()
+        appointment.datetime = '2023-02-01T00:00:00.000+0000'
+        appointment.locale = 'fr'
+
+        appointment.guardian = new Guardian()
+        appointment.guardian.with {
+            email = "alpha"
+            firstName = "bravo"
+            lastName = "charlie"
+            phoneNumber = "delta"
+            phoneTypeLabel = "echo"
+        }
+
+        Student student = new Student()
+        student.with {
+            studentId = "foxtrot"
+            school = "golf"
+            gender = "hotel"
+            grade = "india"
+        }
+        appointment.students = [student]
+
+        and:
+        Appointment app = new Appointment()
+        app.semester = 'Spring'
+        app.year = 2020
+
+        and:
+        Appointment prevAppointment = new Appointment()
+        prevAppointment.datetime = new Timestamp(100, 1, 1, 1, 1, 1, 0)
+        Visit visit = new Visit()
+        prevAppointment.visits = [visit]
+        visit.student = student
+
+        and:
+        ResultDto result = new ResultDto()
+
+        when:
+        subject.validateStudentsHaveNotAlreadyBeen(appointment, result, app, oneAppointmentPerYear)
+
+        then:
+        1 * subject.appointmentRepository.findWithVisitsByStudentIds(
+                "Spring", 2020, ["foxtrot"]) >> []
+        1 * subject.appointmentRepository.findWithVisitsByStudentIds(
+                "Fall", 2019, ["foxtrot"]) >> [prevAppointment]
+
+        and:
+        result.codes == ['ALREADY_BEEN']
+        result.messages == ['foxtrot 2000-02-01T01:01:01.000-0600']
+        result.success == false
+
+    }
+
 
 }
